@@ -27,7 +27,7 @@
   <a href="https://github.com/PlayzAe/playz_anime">
     <img src="https://img.shields.io/badge/Platform-Web%20%7C%20Windows-blue?style=flat-square" alt="Platforms" />
   </a>
-  <a href="https://github.com/PlayzAe/playz_anime/blob/main/LEGAL.md">
+  <a href="https://github.com/PlayzAe/playz_anime/blob/main/docs/LEGAL.md">
     <img src="https://img.shields.io/badge/License-Proprietary-red?style=flat-square" alt="License" />
   </a>
 </div>
@@ -119,9 +119,7 @@ npm --prefix server start
 
 ---
 
-## Production Deployment (Docker / Render)
-
-This repository includes a multi-stage [Dockerfile](Dockerfile) ready for one-click deployment:
+This repository includes a multi-stage [Dockerfile](Dockerfile) ready for one-click deployment. See [docs/DEPLOY.md](docs/DEPLOY.md) for full instructions.
 
 1. Connect this repo to **[Render](https://render.com)** as a **Web Service**.
 2. Set Runtime to **Docker** and Instance Type to **Free**.
