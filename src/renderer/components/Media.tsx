@@ -1,3 +1,4 @@
+import { animate } from 'motion/react';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import type { Media, MediaSnapshot } from '../../shared/types';
 import {
@@ -167,7 +168,42 @@ export function Shelf({ title, subtitle, action, children, className = '', varia
     };
   }, [children]);
 
-  const page = (dir: 1 | -1) => track.current?.scrollBy({ left: dir * track.current.clientWidth * 0.85, behavior: 'smooth' });
+  const page = (dir: 1 | -1) => {
+    const el = track.current;
+    if (!el) return;
+    
+    const roughTarget = el.scrollLeft + dir * el.clientWidth * 0.85;
+    let bestOffset = roughTarget;
+    let minDistance = Infinity;
+    const padding = 44; // corresponds to var(--gutter)
+    const trackRect = el.getBoundingClientRect();
+    
+    // Find the exact snap point (child position) closest to our rough target
+    for (let i = 0; i < el.children.length; i++) {
+      const child = el.children[i] as HTMLElement;
+      const childLeft = child.getBoundingClientRect().left - trackRect.left + el.scrollLeft;
+      const snapPos = childLeft - padding;
+      
+      const distance = Math.abs(snapPos - roughTarget);
+      if (distance < minDistance) {
+        minDistance = distance;
+        bestOffset = snapPos;
+      }
+    }
+    
+    bestOffset = Math.max(0, Math.min(bestOffset, el.scrollWidth - el.clientWidth));
+    
+    // Calculate a dynamic duration based on the actual distance to travel
+    // (so short scrolls at the end of the list don't take the full half-second and feel sluggish)
+    const distance = Math.abs(bestOffset - el.scrollLeft);
+    const duration = Math.max(0.2, Math.min(0.45, distance / 1500));
+    
+    animate(el.scrollLeft, bestOffset, {
+      duration,
+      ease: [0.22, 0.61, 0.36, 1], // Standard clean ease-out
+      onUpdate: (v) => { el.scrollLeft = v; }
+    });
+  };
 
   return (
     <section className={`shelf shelf-${variant} ${className}`}>

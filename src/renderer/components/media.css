@@ -172,15 +172,11 @@
   overflow-y: hidden;
   padding: 4px var(--gutter) 6px;
   scroll-padding: 0 var(--gutter);
-  scroll-snap-type: x proximity;
   scrollbar-width: none;
   mask-image: linear-gradient(to right, var(--fs) 0, #000 calc(var(--gutter) + 10px), #000 calc(100% - var(--gutter) - 10px), var(--fe) 100%);
 }
 .shelf-track::-webkit-scrollbar {
   display: none;
-}
-.shelf-track > * {
-  scroll-snap-align: start;
 }
 .shelf-track.fade-start {
   --fs: transparent;
