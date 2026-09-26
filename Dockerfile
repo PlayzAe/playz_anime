@@ -26,7 +26,7 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV HOST=0.0.0.0
 ENV PORT=5310
-ENV PLAYZANIME_RELAY=off
+ENV PLAYZANIME_RELAY=on
 
 # Copy built artifacts and minimal package files
 COPY --from=builder /app/package.json ./package.json
