@@ -1,0 +1,135 @@
+<p align="center">
+<a href="https://playz-anime.onrender.com/">
+<img src="https://raw.githubusercontent.com/PlayzAe/playz_anime_landingpage/main/public/icon.png" alt="PlayzAnime Logo" width="75px"/>
+</a>
+</p>
+
+<h1 align="center"><b>PlayzAnime</b></h1>
+
+<p align="center">
+<img src="https://raw.githubusercontent.com/PlayzAe/playz_anime_landingpage/main/public/og.png" alt="PlayzAnime Preview" width="100%"/>
+</p>
+
+<p align="center">
+  <a href="https://playzae.github.io/playz_anime_landingpage/">Website</a> |
+  <a href="https://playz-anime.onrender.com">Web App</a> |
+  <a href="https://playzae.github.io/playz_anime/">Pages Mirror</a> |
+  <a href="https://playzae.github.io/playz_anime_landingpage/docs">Documentation</a> |
+  <a href="https://playzae.github.io/playz_anime_landingpage/docs/policies/dmca">Copyright</a>
+</p>
+
+<div align="center">
+  <a href="https://github.com/PlayzAe/playz_anime">
+    <img src="https://img.shields.io/github/stars/PlayzAe/playz_anime?style=flat-square&color=crimson" alt="GitHub Stars" />
+  </a>
+  <a href="https://playz-anime.onrender.com">
+    <img src="https://img.shields.io/badge/Web%20App-Online-brightgreen?style=flat-square" alt="Status" />
+  </a>
+  <a href="https://github.com/PlayzAe/playz_anime">
+    <img src="https://img.shields.io/badge/Platform-Web%20%7C%20Windows-blue?style=flat-square" alt="Platforms" />
+  </a>
+  <a href="https://github.com/PlayzAe/playz_anime/blob/main/LEGAL.md">
+    <img src="https://img.shields.io/badge/License-Proprietary-red?style=flat-square" alt="License" />
+  </a>
+</div>
+
+<h5 align="center">
+Leave a star if you like the project! ⭐️
+</h5>
+
+<br>
+
+## About
+
+PlayzAnime is a **streaming platform** and **media client** with a **web app** and **desktop edition** for streaming anime, reading manga, and managing your AniList library with custom players and zero ads.
+
+> [!IMPORTANT]
+> PlayzAnime does not host, upload, or store any video files on its servers. All streams, episodes, and manga chapters are scraped from third-party services and public APIs. Users are responsible for complying with their local copyright laws.
+
+---
+
+## Features
+
+- **Native Custom Player:** Powered by `hls.js` with adaptive bitrate streaming (1080p, 720p, 480p, 360p), full keyboard shortcuts, smooth volume controls, and picture-in-picture.
+- **Auto Skip Intro & Outro:** Automatically identifies episode intro/outro marks and skips them seamlessly.
+- **Dual-Audio Support:** Instant toggle between Sub (Japanese audio with subtitles) and Dub (English audio).
+- **Manga & Manhwa Reader:** Read chapters from MangaDex, WeebCentral, Flame Scans, and MangaPill with unified vertical (Webtoon), Right-to-Left, and Left-to-Right reader modes.
+- **AniList Integration:** Real-time client-side catalog browsing, seasonal charts, trending releases, airing schedules, and search with zero server bottlenecks.
+- **Embed Fallback:** Switch between the native player and third-party embed players on the fly with built-in ad and popup filtering.
+- **Data Saver Mode:** Compresses manga pages for low-bandwidth connections.
+- **Zero Tracking & Privacy:** Watch history, reading progress, and custom profile settings are stored 100% locally in your browser.
+- **Docker & Cloud Ready:** Production multi-stage Docker setup ready to deploy to Render, Koyeb, or your own VPS.
+
+---
+
+## Get started
+
+Launch the live web application directly in your browser:
+
+<p align="center">
+<a href="https://playz-anime.onrender.com" style="font-size:18px;">
+<b>Open PlayzAnime Web App →</b>
+</a>
+</p>
+
+<br>
+
+## Tech stack
+
+* **Frontend:** [React 19](https://react.dev/), [TypeScript](https://www.typescriptlang.org/), [Vite](https://vite.dev/), [Motion](https://motion.dev/)
+* **Player Pipeline:** [hls.js](https://github.com/video-dev/hls.js/)
+* **Backend Server:** [Node.js](https://nodejs.org/), [esbuild](https://esbuild.github.io/)
+* **Desktop Client:** [Electron](https://www.electronjs.org/)
+
+---
+
+## Development and Build
+
+Building from source is straightforward. You will need [Node.js](https://nodejs.org/) (>= 20) and npm installed on your system.
+
+### 1. Install dependencies
+```bash
+npm install
+npm install --prefix server
+```
+
+### 2. Start development mode
+```bash
+# Windows convenience script (launches frontend on :5311 and server on :5310)
+start.bat
+```
+Or start each service manually:
+```bash
+# Terminal 1: Backend Server
+npm --prefix server run dev
+
+# Terminal 2: Frontend
+npm run dev
+```
+
+### 3. Production Build
+```bash
+npm run build
+npm --prefix server run build
+npm --prefix server start
+```
+
+---
+
+## Production Deployment (Docker / Render)
+
+This repository includes a multi-stage [Dockerfile](Dockerfile) ready for one-click deployment:
+
+1. Connect this repo to **[Render](https://render.com)** as a **Web Service**.
+2. Set Runtime to **Docker** and Instance Type to **Free**.
+3. Configure the following Environment Variables:
+   - `HOST` = `0.0.0.0`
+   - `PLAYZANIME_RELAY` = `on`
+   - `PROXY_SECRET` = `<random_string>`
+   - `ALLOWED_ORIGINS` = `https://playzae.github.io`
+4. Click **Deploy Web Service**. Render serves both the frontend and streaming backend from one URL.
+
+<br>
+
+> [!NOTE]
+> For copyright-related inquiries or takedown requests, please consult the official policy at [playzae.github.io/playz_anime_landingpage/docs/policies/dmca](https://playzae.github.io/playz_anime_landingpage/docs/policies/dmca).
