@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 're
 import { CommandPalette } from './components/CommandPalette';
 import { Button } from './components/Controls';
 import { GetAppPage } from './components/GetApp';
+import { MobileNotice } from './components/MobileNotice';
 import { ProfileDrop } from './components/ProfileDrop';
 import { Rail, TitleBar, Toasts } from './components/Shell';
 import { Splash } from './components/Splash';
@@ -174,6 +175,7 @@ export function App() {
     <div className={`app ${immersive ? 'is-immersive' : ''}`}>
       {!immersive && <Rail route={route} />}
       {!immersive && <TitleBar route={route} solid={scrolled || ALWAYS_SOLID.includes(route.name)} onSearch={() => setPalette(true)} />}
+      <MobileNotice />
       <main className="main" ref={mainRef} onScroll={onScroll}>
         <View key={viewKey} route={route} />
       </main>

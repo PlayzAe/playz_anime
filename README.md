@@ -45,6 +45,10 @@ PlayzAnime is a **streaming platform** and **media client** with a **web app** a
 > [!IMPORTANT]
 > PlayzAnime does not host, upload, or store any video files on its servers. All streams, episodes, and manga chapters are scraped from third-party services and public APIs. Users are responsible for complying with their local copyright laws.
 
+> [!NOTE]
+> **Mobile & Android Display Notice:**
+> The web streaming platform is designed for **laptops, TVs, and desktop monitors**. Android and phone browser viewing is currently unoptimized and may appear scattered. A dedicated native **Android app is coming soon**!
+
 ---
 
 ## Features
