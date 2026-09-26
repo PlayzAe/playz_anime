@@ -25,7 +25,8 @@ function timeoutSignal(ms: number): AbortSignal | undefined {
 
 // Empty: the server is on the same address (start.bat, Vercel). A GitHub Pages build sets
 // VITE_API_BASE to wherever the server runs, e.g. https://playzanime-web.vercel.app.
-const API_BASE = (import.meta.env.VITE_API_BASE ?? '').replace(/\/+$/, '');
+export const API_BASE = (import.meta.env.VITE_API_BASE ?? '').replace(/\/+$/, '');
+export const hasApiBase = Boolean(API_BASE);
 
 export async function rpc<T>(channel: string, ...args: unknown[]): Promise<T> {
   let res: Response;

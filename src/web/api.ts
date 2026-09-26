@@ -19,8 +19,9 @@ import type {
   ResolvedStream,
   SetupStatus,
 } from '../shared/types';
+import { browseDirect, homeDirect, mangaHomeDirect, mediaDirect, scheduleDirect } from './anilist';
 import { cleanProfile, downloadProfileFile, MAX_FILE_BYTES, parseProfileFile, pickProfileFile, PROFILE_EXT } from './profiles';
-import { rpc } from './rpc';
+import { hasApiBase, rpc } from './rpc';
 import * as store from './storage';
 
 /*
@@ -86,11 +87,56 @@ let cachedInfo: Promise<AppInfo> | null = null;
 
 export const webApi: PlayzAnimeApi = {
   anilist: {
-    home: (refresh?: boolean) => rpc<HomeFeed>('anilist:home', Boolean(refresh)),
-    mangaHome: (refresh?: boolean) => rpc<MangaFeed>('anilist:mangaHome', Boolean(refresh)),
-    browse: (filters: BrowseFilters) => rpc<Paged<Media>>('anilist:browse', filters ?? {}),
-    media: (id: number) => rpc<MediaDetail>('anilist:media', Number(id)),
-    schedule: (fromUnix: number, toUnix: number) => rpc<AiringItem[]>('anilist:schedule', Number(fromUnix), Number(toUnix)),
+    home: async (refresh?: boolean) => {
+      if (hasApiBase) {
+        try {
+          return await rpc<HomeFeed>('anilist:home', Boolean(refresh));
+        } catch {
+          /* fallback to direct AniList */
+        }
+      }
+      return homeDirect(store.settings().hideAdult, Boolean(refresh));
+    },
+    mangaHome: async (refresh?: boolean) => {
+      if (hasApiBase) {
+        try {
+          return await rpc<MangaFeed>('anilist:mangaHome', Boolean(refresh));
+        } catch {
+          /* fallback to direct AniList */
+        }
+      }
+      return mangaHomeDirect(store.settings().hideAdult, Boolean(refresh));
+    },
+    browse: async (filters: BrowseFilters) => {
+      if (hasApiBase) {
+        try {
+          return await rpc<Paged<Media>>('anilist:browse', filters ?? {});
+        } catch {
+          /* fallback to direct AniList */
+        }
+      }
+      return browseDirect(filters ?? {}, store.settings().hideAdult);
+    },
+    media: async (id: number) => {
+      if (hasApiBase) {
+        try {
+          return await rpc<MediaDetail>('anilist:media', Number(id));
+        } catch {
+          /* fallback to direct AniList */
+        }
+      }
+      return mediaDirect(Number(id), store.settings().hideAdult);
+    },
+    schedule: async (fromUnix: number, toUnix: number) => {
+      if (hasApiBase) {
+        try {
+          return await rpc<AiringItem[]>('anilist:schedule', Number(fromUnix), Number(toUnix));
+        } catch {
+          /* fallback to direct AniList */
+        }
+      }
+      return scheduleDirect(Number(fromUnix), Number(toUnix), store.settings().hideAdult);
+    },
   },
   episodes: {
     list: (mediaId: number, refresh?: boolean) => rpc<EpisodeList>('episodes:list', Number(mediaId), Boolean(refresh)),
