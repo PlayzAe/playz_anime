@@ -12,8 +12,7 @@
 
 <p align="center">
   <a href="https://playzae.github.io/playz_anime_landingpage/">Website</a> |
-  <a href="https://playz-anime.onrender.com">Web App</a> |
-  <a href="https://playzae.github.io/playz_anime/">Pages Mirror</a> |
+  <a href="https://playz-anime.onrender.com">Watch Online (Web App)</a> |
   <a href="https://playzae.github.io/playz_anime_landingpage/docs">Documentation</a> |
   <a href="https://playzae.github.io/playz_anime_landingpage/docs/policies/dmca">Copyright</a>
 </p>
