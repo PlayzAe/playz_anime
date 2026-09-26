@@ -1,0 +1,185 @@
+/* ── Get the Windows app: the web's Downloads page and prompt ── */
+
+.page.getapp {
+  width: 100%;
+  max-width: calc(980px + 2 * var(--gutter));
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.getapp-hero {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 48px;
+  align-items: center;
+  margin-top: 44px;
+  padding: 40px 44px;
+  border-radius: var(--radius-3);
+  border: 1px solid var(--line);
+  background:
+    radial-gradient(120% 140% at 0% 0%, color-mix(in oklab, var(--accent) 16%, transparent), transparent 60%),
+    var(--ink-1);
+  overflow: hidden;
+}
+
+.getapp-seal {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 150px;
+  height: 150px;
+}
+.getapp-seal svg {
+  position: relative;
+  filter: drop-shadow(0 18px 40px color-mix(in oklab, var(--accent) 45%, transparent));
+  animation: getapp-stamp 620ms cubic-bezier(0.3, 1.4, 0.5, 1) both;
+}
+.getapp-halo {
+  position: absolute;
+  inset: -20px;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, transparent, color-mix(in oklab, var(--accent) 40%, transparent), transparent 40%, color-mix(in oklab, var(--accent-hi) 25%, transparent), transparent 80%);
+  filter: blur(28px);
+  opacity: 0.55;
+  animation: getapp-turn 9s linear infinite;
+}
+@keyframes getapp-turn {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes getapp-stamp {
+  from {
+    opacity: 0;
+    transform: translateY(-18px) scale(1.3) rotate(-9deg);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(2px) scale(0.97) rotate(1deg);
+  }
+}
+
+.getapp-eyebrow {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.getapp-title {
+  margin-top: 8px;
+  font-size: clamp(36px, 4.4vw, 56px);
+}
+.getapp-sub {
+  margin-top: 14px;
+  max-width: 54ch;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--paper-2);
+}
+.getapp-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 24px;
+}
+.getapp-fine {
+  margin-top: 12px;
+  font-size: 12.5px;
+  color: var(--paper-3);
+}
+
+.getapp-features {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 26px 36px;
+  margin-top: 40px;
+  padding: 0 4px;
+}
+.getapp-features li {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+.getapp-icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-2);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.getapp-feature-text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--paper-2);
+}
+.getapp-feature-text strong {
+  font-size: 14.5px;
+  font-weight: 660;
+  color: var(--paper);
+}
+
+/* The prompt behind every Download button. */
+.getapp-dialog {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--paper-2);
+}
+.getapp-dialog svg {
+  flex: none;
+}
+.getapp-features.is-compact {
+  grid-template-columns: 1fr;
+  gap: 14px;
+  margin-top: 20px;
+  padding: 0;
+}
+.getapp-features.is-compact .getapp-icon {
+  width: 34px;
+  height: 34px;
+}
+
+@media (max-width: 760px) {
+  .getapp-hero {
+    grid-template-columns: 1fr;
+    gap: 18px;
+    margin-top: 20px;
+    padding: 24px 20px;
+    justify-items: start;
+  }
+  .getapp-seal {
+    width: 104px;
+    height: 104px;
+  }
+  .getapp-seal svg {
+    width: 72px;
+    height: 72px;
+  }
+  .getapp-title {
+    font-size: clamp(32px, 10vw, 42px);
+  }
+  .getapp-actions .btn {
+    flex: 1 1 100%;
+  }
+  .getapp-features {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    margin-top: 28px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .getapp-halo {
+    animation: none;
+  }
+}

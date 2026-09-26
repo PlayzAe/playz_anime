@@ -1,0 +1,26 @@
+{
+  "name": "playzanime-web-server",
+  "version": "0.1.0",
+  "description": "PlayzAnime Web server: RPC for the browser app, stream and image proxies, static hosting.",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "build": "node scripts/build.mjs",
+    "start": "node dist/index.mjs",
+    "build:vercel": "node scripts/build-vercel.mjs",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "license": "UNLICENSED",
+  "dependencies": {
+    "node-html-parser": "^9.0.4"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.2",
+    "esbuild": "^0.28.2",
+    "typescript": "^7.0.2"
+  }
+}

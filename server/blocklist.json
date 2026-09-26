@@ -1,0 +1,5 @@
+{
+  "_readme": "Takedowns. mediaIds: AniList ids of titles disabled after a valid copyright notice. hosts: source hostnames that must never be loaded or relayed. The server re-reads this file when it changes. Keep a note of each notice (date, sender, what) in your records.",
+  "mediaIds": [],
+  "hosts": []
+}

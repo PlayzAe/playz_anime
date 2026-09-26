@@ -1,0 +1,48 @@
+# Publishes the site to GitHub Pages on every push to main.
+# Pages only hosts files, so the server runs elsewhere (for example this repo on Vercel):
+# set the repository variable API_BASE to its address. See DEPLOY.md.
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Build
+        run: npm run build:pages
+        env:
+          # A project site lives at https://<user>.github.io/<repo>/. With a custom domain, set the variable BASE_PATH to /.
+          VITE_BASE: ${{ vars.BASE_PATH || format('/{0}/', github.event.repository.name) }}
+          VITE_API_BASE: ${{ vars.API_BASE }}
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

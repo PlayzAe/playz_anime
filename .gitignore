@@ -1,0 +1,23 @@
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+
+# Build output. api/_lib/ and api/blocklist.json stay committed: Vercel looks for its
+# functions before building, and the build regenerates them anyway.
+dist/
+server/dist/
+.vercel/
+
+# Server runtime data (feed cache, logs)
+server/data/
+
+# Logs & temporary video
+*.log
+*.mp4
+
+# Environment & IDE
+.env
+.env.*
+.vscode/
+.idea/

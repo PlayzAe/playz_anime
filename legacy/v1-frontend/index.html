@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PlayzAe.Tv — Minimalist Anime Streaming</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- Top Viewport Loading Bar -->
+  <div id="top-loader-bar" class="top-loader-bar"></div>
+
+  <!-- Top Navbar -->
+  <nav id="top-navbar">
+    <div class="nav-left">
+      <span class="brand" id="brand-logo">
+        <span class="brand-accent">Play</span>zAe<span style="font-size:0.75em;opacity:0.85">.Tv</span>
+      </span>
+      <button class="nav-btn nav-back-btn" id="nav-back-btn" title="Go Back">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+        Back
+      </button>
+      <div class="nav-links-row">
+        <button class="nav-text-link active" id="nav-home-link">Home</button>
+        <button class="nav-text-link" id="nav-series-link">Anime</button>
+        <button class="nav-text-link" id="nav-movies-link">Movies</button>
+        <div class="nav-dropdown-wrapper" id="nav-browse-wrap">
+          <button class="nav-text-link" id="nav-browse-btn">Browse ▾</button>
+          <div class="browse-mega-menu" id="nav-browse-menu" style="display:none">
+            <div class="browse-col">
+              <span class="browse-heading">Categories</span>
+              <button class="browse-menu-item" data-browse-filter="trending">⚡ Trending Now</button>
+              <button class="browse-menu-item" data-browse-filter="popular_tv">📺 Popular Anime Series</button>
+              <button class="browse-menu-item" data-browse-filter="movies">🎬 Anime Movies</button>
+              <button class="browse-menu-item" data-browse-filter="top_rated">★ Top Rated</button>
+              <button class="browse-menu-item" id="browse-adblockers-btn">🛡️ Ad Blocker Guide</button>
+            </div>
+            <div class="browse-col">
+              <span class="browse-heading">Genres</span>
+              <div class="browse-genres-grid">
+                <button class="browse-genre-item" data-genre="Action">Action</button>
+                <button class="browse-genre-item" data-genre="Adventure">Adventure</button>
+                <button class="browse-genre-item" data-genre="Comedy">Comedy</button>
+                <button class="browse-genre-item" data-genre="Fantasy">Fantasy</button>
+                <button class="browse-genre-item" data-genre="Sci-Fi">Sci-Fi</button>
+                <button class="browse-genre-item" data-genre="Supernatural">Supernatural</button>
+                <button class="browse-genre-item" data-genre="Drama">Drama</button>
+                <button class="browse-genre-item" data-genre="Mystery">Mystery</button>
+                <button class="browse-genre-item" data-genre="Sports">Sports</button>
+                <button class="browse-genre-item" data-genre="Romance">Romance</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <button class="nav-text-link" id="nav-adblockers-link">Ad Blockers</button>
+        <button class="nav-text-link" id="nav-settings-btn">Settings</button>
+      </div>
+    </div>
+
+    <!-- Quick Search Input -->
+    <div class="nav-search-wrap" id="nav-search-container">
+      <div class="search-input-box">
+        <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+        <input type="text" id="nav-search-input" placeholder="Search anime or acronyms (e.g. jjk, aot, op, dbz)..." autocomplete="off">
+        <button class="search-clear-btn" id="nav-search-clear">✕</button>
+      </div>
+      <div class="search-dropdown" id="nav-search-drop"></div>
+    </div>
+
+    <!-- Right Controls: Notification & Quick Theme -->
+    <div class="nav-right">
+      <div class="notif-wrap" id="nav-notif-wrap">
+        <button class="nav-btn notif-btn" id="nav-notif-btn" title="Downloads &amp; Library">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+          </svg>
+          <span class="notif-badge-pill" id="nav-notif-count" style="display:none">0</span>
+        </button>
+        <div class="notif-dropdown" id="nav-notif-dropdown" style="display:none">
+          <div class="notif-dropdown-header">
+            <h4>Downloads &amp; Library</h4>
+            <button class="notif-clear-btn" id="notif-clear-btn">Clear</button>
+          </div>
+          <div class="notif-list" id="notif-list-container">
+            <div class="notif-empty">No downloads yet. Completed episodes appear here.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Page Content Container -->
+  <main id="page-view"></main>
+
+  <!-- Clean Minimalist Footer with GitHub Link -->
+  <footer class="app-footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <span class="brand-accent">Play</span>zAe<span style="font-size:0.75em;opacity:0.85">.Tv</span>
+      </div>
+      <p class="footer-text">Minimalist Anime Streaming Platform · Powered by AniList &amp; Megaplay</p>
+      <div class="footer-links">
+        <a href="https://github.com/playzae" target="_blank" rel="noopener noreferrer" class="footer-gh-link">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+          </svg>
+          github.com/playzae
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Toast Notification -->
+  <div id="toast-notification"></div>
+
+  <!-- Settings Modal (Theme Accent Switcher + Ad Blocker Link) -->
+  <div class="modal-overlay" id="settings-modal-box" style="display:none">
+    <div class="modal-dialog">
+      <div class="modal-header-row">
+        <h3>Settings &amp; Appearance</h3>
+        <button class="modal-close-btn" id="settings-close-btn">✕</button>
+      </div>
+      <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:1.2rem">
+        Customize PlayzAe.Tv's accent color. Changes apply instantly and save locally.
+      </p>
+      <div class="settings-theme-colors">
+        <button class="theme-color-btn active" data-color="#10b981" style="--btn-color:#10b981">
+          <span class="color-dot"></span> Emerald (Default)
+        </button>
+        <button class="theme-color-btn" data-color="#ef4444" style="--btn-color:#ef4444">
+          <span class="color-dot"></span> Cinema Red
+        </button>
+        <button class="theme-color-btn" data-color="#06b6d4" style="--btn-color:#06b6d4">
+          <span class="color-dot"></span> Cyber Cyan
+        </button>
+        <button class="theme-color-btn" data-color="#a855f7" style="--btn-color:#a855f7">
+          <span class="color-dot"></span> Neon Purple
+        </button>
+        <button class="theme-color-btn" data-color="#f59e0b" style="--btn-color:#f59e0b">
+          <span class="color-dot"></span> Amber Gold
+        </button>
+      </div>
+
+      <div style="margin-top:1.4rem;padding-top:1rem;border-top:1px solid var(--border-subtle);display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div style="font-weight:700;font-size:0.88rem;color:var(--text-main)">Ad Blocker Guide</div>
+          <div style="font-size:0.76rem;color:var(--text-dim)">Block player embed popups &amp; ads</div>
+        </div>
+        <button class="nav-btn" id="settings-open-adblockers-btn" style="border-color:var(--accent);color:var(--accent);font-weight:700">
+          Open Guide →
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lang Select Modal -->
+  <div class="modal-overlay" id="lang-modal-box" style="display:none">
+    <div class="modal-dialog">
+      <h3 id="modal-ep-title">Select Audio</h3>
+      <p style="color:var(--text-muted);font-size:0.85rem">Choose available audio stream for this episode.</p>
+      <div class="modal-btn-row">
+        <button class="modal-choice-btn primary" id="modal-sub-choice">🇯🇵 Japanese (SUB)</button>
+        <button class="modal-choice-btn secondary" id="modal-dub-choice">🇺🇸 English (DUB)</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>

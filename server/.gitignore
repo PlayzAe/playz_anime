@@ -1,0 +1,4 @@
+node_modules/
+dist/
+# Feed cache and logs written at runtime.
+data/
