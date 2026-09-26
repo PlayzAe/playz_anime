@@ -21,3 +21,10 @@ server/data/
 .env.*
 .vscode/
 .idea/
+
+# Scratch & temporary scripts
+*.py
+*.ps1
+scripts/temp*
+scripts/fix*
+scripts/update*
