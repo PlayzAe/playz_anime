@@ -10,6 +10,7 @@
     "build:vercel": "vite build && npm --prefix server run build:vercel",
     "build:pages": "vite build && node scripts/spa-fallback.mjs",
     "preview": "vite preview",
+    "lint": "oxlint src/",
     "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.node.json --noEmit"
   },
   "author": {
