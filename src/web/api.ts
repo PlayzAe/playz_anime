@@ -221,6 +221,7 @@ export const webApi: PlayzAnimeApi = {
     // The server's caches are shared by everyone; the page's own caches are cleared by the caller.
     clearCache: () => done(undefined),
     setPlayer: () => done(undefined),
+    setAppIcon: () => done({ ok: true }),
     onCommand: (_listener: (command: AppCommand) => void) => () => {},
     online: () => done(navigator.onLine),
   },

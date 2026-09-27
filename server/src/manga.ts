@@ -50,6 +50,7 @@ const SOURCES: Record<MangaProviderId, Source> = {
     chapters: (id, adult) => mangadex.chapters(id, adult),
     pages: (id, saver) => mangadex.pages(id, saver),
     ping: () => mangadex.ping(),
+    referer: 'https://mangadex.org/',
     idPattern: /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
     adultAware: true,
   },
