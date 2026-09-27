@@ -100,8 +100,35 @@ const SOURCES: Record<MangaProviderId, Source> = {
   },
 };
 
+import { extensionRegistry } from './extensions/registry';
+import type { MangaExtensionInfo } from '../../src/shared/types';
+
+export function getSource(provider: MangaProviderId): Source | undefined {
+  if (SOURCES[provider]) return SOURCES[provider];
+  const ext = extensionRegistry.getSource(provider);
+  if (ext) {
+    return {
+      find: (media, adult) => ext.find(media, adult),
+      chapters: (id) => ext.chapters(id),
+      pages: (id) => ext.pages(id),
+      ping: () => ext.ping(),
+      referer: ext.config.baseUrl,
+      idPattern: /^[\w\-\.\/:]+$/,
+    };
+  }
+  return undefined;
+}
+
+export function listExtensions(): MangaExtensionInfo[] {
+  return extensionRegistry.getAllConfigs() as MangaExtensionInfo[];
+}
+
+export function toggleExtension(id: string, enabled: boolean) {
+  extensionRegistry.toggle(id, enabled);
+}
+
 export function refererFor(provider: MangaProviderId): string | undefined {
-  return SOURCES[provider]?.referer;
+  return getSource(provider)?.referer;
 }
 
 // ── Health ──────────────────────────────────────────────────────────────────
@@ -111,8 +138,12 @@ const HEALTH_TTL = 10 * MIN;
 
 async function check(provider: MangaProviderId): Promise<ProviderHealth> {
   const started = Date.now();
+  const source = getSource(provider);
+  if (!source) {
+    return { provider, ok: false, ms: 0, checkedAt: Date.now(), error: 'Unknown provider' };
+  }
   try {
-    await Promise.race([SOURCES[provider].ping(), new Promise((_, reject) => setTimeout(() => reject(new Error('No answer in 10 seconds')), 10_000))]);
+    await Promise.race([source.ping(), new Promise((_, reject) => setTimeout(() => reject(new Error('No answer in 10 seconds')), 10_000))]);
     return { provider, ok: true, ms: Date.now() - started, checkedAt: Date.now(), error: null };
   } catch (err) {
     return { provider, ok: false, ms: Date.now() - started, checkedAt: Date.now(), error: err instanceof Error ? err.message : String(err) };
@@ -156,7 +187,10 @@ async function loadProvider(provider: MangaProviderId, media: MediaDetail, adult
   if (!force && down && !down.ok && Date.now() - down.checkedAt < HEALTH_TTL) {
     return { summary: { provider, sourceId: null, title: null, chapterCount: 0, latest: null, error: `Unreachable right now (${down.error})` }, chapters: [] };
   }
-  const source = SOURCES[provider];
+  const source = getSource(provider);
+  if (!source) {
+    return { summary: { provider, sourceId: null, title: null, chapterCount: 0, latest: null, error: 'Provider not found' }, chapters: [] };
+  }
   const variant = source.adultAware && adultAllowed ? ':adult' : '';
   return cache.wrap(
     `chapters:${provider}:${media.id}${variant}`,
@@ -182,7 +216,7 @@ async function loadProvider(provider: MangaProviderId, media: MediaDetail, adult
 }
 
 const readable = (r: ProviderResult) => r.chapters.filter((c) => !c.externalUrl).length;
-const RICHNESS: Record<MangaProviderId, number> = { mangadex: 4, asura: 3, flame: 2, weebcentral: 1, mangapill: 0 };
+const RICHNESS: Record<string, number> = { mangadex: 4, asura: 3, flame: 2, weebcentral: 1, mangapill: 0 };
 
 /**
  * Asks every healthy source in parallel and uses the one that is furthest along
@@ -193,15 +227,21 @@ export async function chapterList(mediaId: number, prefs: Prefs, provider?: Mang
   const media = await anilist.media(mediaId);
   // A fresh health check runs alongside, so a source that just went down is skipped next time.
   void providerHealth().catch(() => {});
-  const results = await Promise.all(MANGA_PROVIDERS.map(({ id }) => loadProvider(id, media, !prefs.hideAdult, force)));
 
   const preferred = provider ?? (prefs.mangaProvider !== 'auto' ? prefs.mangaProvider : null);
+  const providersToCheck: MangaProviderId[] = MANGA_PROVIDERS.map((p) => p.id);
+  if (preferred && !providersToCheck.includes(preferred)) {
+    providersToCheck.push(preferred);
+  }
+
+  const results = await Promise.all(providersToCheck.map((id) => loadProvider(id, media, !prefs.hideAdult, force)));
+
   let chosen = preferred ? results.find((r) => r.summary.provider === preferred && readable(r)) : undefined;
   if (!chosen) {
     chosen = [...results].sort((a, b) => {
       const diff = Number(b.summary.latest ?? -1) - Number(a.summary.latest ?? -1);
       // Ties go to the source with richer chapter data (titles, groups, volumes).
-      return Math.abs(diff) >= 1 ? diff : readable(b) - readable(a) || RICHNESS[b.summary.provider] - RICHNESS[a.summary.provider];
+      return Math.abs(diff) >= 1 ? diff : readable(b) - readable(a) || (RICHNESS[b.summary.provider] ?? 0) - (RICHNESS[a.summary.provider] ?? 0);
     })[0];
   }
 
@@ -219,7 +259,7 @@ export class UnknownChapterError extends Error {}
 export function parseChapterId(id: string): { provider: MangaProviderId; sourceId: string } {
   const [provider, ...rest] = id.split(':');
   const sourceId = rest.join(':');
-  const source = SOURCES[provider as MangaProviderId];
+  const source = getSource(provider as MangaProviderId);
   if (!source) throw new UnknownChapterError('That chapter comes from a source PlayzAnime no longer uses.');
   if (!source.idPattern.test(sourceId)) throw new UnknownChapterError('That chapter link is not one PlayzAnime recognises.');
   return { provider: provider as MangaProviderId, sourceId };
@@ -229,7 +269,9 @@ export function chapterPages(chapter: Chapter, prefs: Prefs): Promise<ChapterPag
   const { provider, sourceId } = parseChapterId(chapter.id);
   // MangaDex@Home URLs are tokenised and expire, so keep them briefly.
   const saver = prefs.dataSaver;
-  return cache.wrap(`pages:${chapter.id}:${saver}`, 5 * MIN, () => SOURCES[provider].pages(sourceId, saver));
+  const source = getSource(provider);
+  if (!source) throw new UnknownChapterError('Source not available');
+  return cache.wrap(`pages:${chapter.id}:${saver}`, 5 * MIN, () => source.pages(sourceId, saver));
 }
 
 export function clearMangaCache() {

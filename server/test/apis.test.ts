@@ -222,6 +222,33 @@ describe('PlayzAnime APIs Unit Test Suite', () => {
       assert.equal(asuraEntry.ok, true, 'Asura Scans should be healthy');
     });
 
+    test('POST /api/rpc/manga:extensions returns 50+ manga and manhwa extension catalog', async () => {
+      const { status, data } = await postRpc('manga:extensions');
+      assert.equal(status, 200);
+      assert.ok(Array.isArray(data), 'Extensions must be an array');
+      assert.ok(data.length >= 50, `Expected at least 50 extensions, got ${data.length}`);
+      const asura = data.find((e: any) => e.id === 'asura');
+      assert.ok(asura, 'Asura Scans must be in extension catalog');
+      assert.equal(asura.category, 'manhwa');
+      const manhuaPlus = data.find((e: any) => e.id === 'manhuaplus');
+      assert.ok(manhuaPlus, 'ManhuaPlus must be in extension catalog');
+      assert.equal(manhuaPlus.engine, 'madara');
+    });
+
+    test('POST /api/rpc/manga:toggleExtension enables and disables extensions', async () => {
+      const toggleRes = await postRpc('manga:toggleExtension', ['toonily', false]);
+      assert.equal(toggleRes.status, 200);
+      assert.equal(toggleRes.data.ok, true);
+
+      const { data } = await postRpc('manga:extensions');
+      const toonily = data.find((e: any) => e.id === 'toonily');
+      assert.ok(toonily);
+      assert.equal(toonily.enabled, false, 'Toonily should be toggled off');
+
+      // Re-enable
+      await postRpc('manga:toggleExtension', ['toonily', true]);
+    });
+
     test('POST /api/rpc/anilist:home returns trending over HTTP RPC', async () => {
       const { status, data } = await postRpc('anilist:home', [false]);
       assert.equal(status, 200);

@@ -154,6 +154,8 @@ export const webApi: PlayzAnimeApi = {
       return rpc<ChapterPage[]>('manga:pages', chapter);
     },
     health: (force?: boolean) => rpc<ProviderHealth[]>('manga:health', Boolean(force)),
+    extensions: () => rpc<MangaExtensionInfo[]>('manga:extensions'),
+    toggleExtension: (id: string, enabled: boolean) => rpc<{ ok: boolean }>('manga:toggleExtension', id, enabled),
   },
 
   library: {

@@ -99,7 +99,19 @@ var config = {
 fs.mkdirSync(config.dataDir, { recursive: true });
 
 // src/http.ts
-var CHROME_UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36";
+var CHROME_UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36";
+var BROWSER_HEADERS = {
+  "User-Agent": CHROME_UA,
+  "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+  "Accept-Language": "en-US,en;q=0.9",
+  "Sec-Ch-Ua": '"Not(A:Brand";v="99", "Google Chrome";v="133", "Chromium";v="133"',
+  "Sec-Ch-Ua-Mobile": "?0",
+  "Sec-Ch-Ua-Platform": '"Windows"',
+  "Sec-Fetch-Dest": "document",
+  "Sec-Fetch-Mode": "navigate",
+  "Sec-Fetch-Site": "cross-site",
+  "Upgrade-Insecure-Requests": "1"
+};
 var HttpError = class extends Error {
   constructor(status, url, body = "", retryAfter = 0) {
     super(`HTTP ${status} for ${url}`);
@@ -121,7 +133,7 @@ async function request(url, opts = {}) {
   const res = await fetch(url, {
     method: opts.method ?? "GET",
     body: opts.body,
-    headers: { "User-Agent": CHROME_UA, ...opts.headers },
+    headers: { ...BROWSER_HEADERS, ...opts.headers },
     signal: withTimeout(opts.timeoutMs ?? 15e3, opts.signal),
     redirect: "follow"
   });
@@ -412,14 +424,14 @@ var BROWSE_QUERY = (
 );
 function browse(filters2, hideAdult) {
   const type = filters2.type ?? "ANIME";
-  const search4 = filters2.search?.trim() || null;
-  const sort = filters2.sort ?? (search4 ? "SEARCH_MATCH" : "TRENDING_DESC");
+  const search5 = filters2.search?.trim() || null;
+  const sort = filters2.sort ?? (search5 ? "SEARCH_MATCH" : "TRENDING_DESC");
   const isManga = type === "MANGA";
   const vars = {
     type,
     page: filters2.page ?? 1,
     perPage: Math.min(filters2.perPage ?? 30, 50),
-    search: search4,
+    search: search5,
     sort: sort === "SEARCH_MATCH" ? ["SEARCH_MATCH", "POPULARITY_DESC"] : [sort, "POPULARITY_DESC"],
     genres: filters2.genres?.length ? filters2.genres : null,
     formats: filters2.formats?.length ? filters2.formats : null,
@@ -430,12 +442,12 @@ function browse(filters2, hideAdult) {
     year: isManga ? null : filters2.year ?? null,
     status: filters2.status ?? null,
     // Unreleased anime have nothing to play, so they only appear when asked for explicitly or when searching.
-    statusNot: filters2.status || search4 || isManga ? null : "NOT_YET_RELEASED",
+    statusNot: filters2.status || search5 || isManga ? null : "NOT_YET_RELEASED",
     isAdult: adultVar(hideAdult),
     country: isManga ? filters2.country ?? null : null
   };
   const key = `browse:${JSON.stringify(vars)}`;
-  return cache.wrap(key, (search4 ? 5 : 10) * MIN, async () => {
+  return cache.wrap(key, (search5 ? 5 : 10) * MIN, async () => {
     const data = await gql(BROWSE_QUERY, vars);
     return { items: data.Page.media, page: vars.page, hasNextPage: data.Page.pageInfo.hasNextPage };
   });
@@ -1084,13 +1096,13 @@ function encodeXML$1(input) {
 }
 function getEscaper$1(regex, map) {
   return function escape(data) {
-    let match5;
+    let match6;
     let lastIndex = 0;
     let result = "";
-    while (match5 = regex.exec(data)) {
-      if (lastIndex !== match5.index) result += data.substring(lastIndex, match5.index);
-      result += map.get(match5[0].charCodeAt(0));
-      lastIndex = match5.index + 1;
+    while (match6 = regex.exec(data)) {
+      if (lastIndex !== match6.index) result += data.substring(lastIndex, match6.index);
+      result += map.get(match6[0].charCodeAt(0));
+      lastIndex = match6.index + 1;
     }
     return result + data.substring(lastIndex);
   };
@@ -1393,9 +1405,9 @@ var getCodePoint = String.prototype.codePointAt != null ? (str, index) => str.co
 function encodeXML(str) {
   let ret = "";
   let lastIdx = 0;
-  let match5;
-  while ((match5 = xmlReplacer.exec(str)) !== null) {
-    const i = match5.index;
+  let match6;
+  while ((match6 = xmlReplacer.exec(str)) !== null) {
+    const i = match6.index;
     const char = str.charCodeAt(i);
     const next = xmlCodeMap.get(char);
     if (next !== void 0) {
@@ -1410,13 +1422,13 @@ function encodeXML(str) {
 }
 function getEscaper(regex, map) {
   return function escape(data) {
-    let match5;
+    let match6;
     let lastIdx = 0;
     let result = "";
-    while (match5 = regex.exec(data)) {
-      if (lastIdx !== match5.index) result += data.substring(lastIdx, match5.index);
-      result += map.get(match5[0].charCodeAt(0));
-      lastIdx = match5.index + 1;
+    while (match6 = regex.exec(data)) {
+      if (lastIdx !== match6.index) result += data.substring(lastIdx, match6.index);
+      result += map.get(match6[0].charCodeAt(0));
+      lastIdx = match6.index + 1;
     }
     return result + data.substring(lastIdx);
   };
@@ -2212,9 +2224,9 @@ var require_parse = /* @__PURE__ */ __commonJSMin(((exports) => {
   function parseSelector(subselects2, selector, selectorIndex) {
     var tokens = [];
     function getName2(offset) {
-      var match5 = selector.slice(selectorIndex + offset).match(reName);
-      if (!match5) throw new Error("Expected name, found ".concat(selector.slice(selectorIndex)));
-      var name = match5[0];
+      var match6 = selector.slice(selectorIndex + offset).match(reName);
+      if (!match6) throw new Error("Expected name, found ".concat(selector.slice(selectorIndex)));
+      var name = match6[0];
       selectorIndex += offset + name.length;
       return unescapeCSS(name);
     }
@@ -4075,11 +4087,11 @@ var HTMLElement = class HTMLElement2 extends Node {
     const attrs = {};
     if (this.rawAttrs) {
       const re = /([_a-zA-Z()[\]#@$.?:][a-zA-Z0-9-._:()[\]#]*)(?:\s*=\s*((?:'[^']*')|(?:"[^"]*")|\S+))?/g;
-      let match5;
-      while (match5 = re.exec(this.rawAttrs)) {
-        const key = match5[1];
+      let match6;
+      while (match6 = re.exec(this.rawAttrs)) {
+        const key = match6[1];
         if (key === "__proto__") continue;
-        let val = match5[2] || null;
+        let val = match6[2] || null;
         if (val && (val[0] === `'` || val[0] === `"`)) val = val.slice(1, val.length - 1);
         attrs[key] = attrs[key] || val;
       }
@@ -4545,14 +4557,14 @@ function base_parse(data, options = {}) {
   const stack = [root];
   let lastTextPos = -1;
   let noNestedTagIndex = void 0;
-  let match5;
+  let match6;
   data = `<${frameflag}>${data}</${frameflag}>`;
   const { lowerCaseTagName, fixNestedATags } = options;
   const dataEndPos = data.length - 28;
   const frameFlagOffset = 27;
   markupPattern.lastIndex = 0;
-  while (match5 = markupPattern.exec(data)) {
-    let { 0: matchText, 1: leadingSlash, 2: tagName, 3: attributes2, 4: closingSlash } = match5;
+  while (match6 = markupPattern.exec(data)) {
+    let { 0: matchText, 1: leadingSlash, 2: tagName, 3: attributes2, 4: closingSlash } = match6;
     const matchLength = matchText.length;
     const tagStartPos = markupPattern.lastIndex - matchLength;
     const tagEndPos = markupPattern.lastIndex;
@@ -4891,9 +4903,9 @@ function kitsuStills(malId, need) {
     const mapping = await getJson(`${KITSU}/mappings?filter[externalSite]=myanimelist/anime&filter[externalId]=${malId}&include=item`, { headers: KITSU_HEADERS, timeoutMs: 8e3 });
     const kitsuId = mapping.included?.find((i) => i.type === "anime")?.id;
     if (!kitsuId) return stills;
-    const pages5 = [...new Set(need.map((n) => Math.floor((n - 1) / 20)))].slice(0, 10);
+    const pages6 = [...new Set(need.map((n) => Math.floor((n - 1) / 20)))].slice(0, 10);
     await Promise.all(
-      pages5.map(async (p) => {
+      pages6.map(async (p) => {
         const res = await getJson(
           `${KITSU}/anime/${kitsuId}/episodes?page[limit]=20&page[offset]=${p * 20}&sort=number`,
           { headers: KITSU_HEADERS, timeoutMs: 8e3 }
@@ -4977,29 +4989,145 @@ async function listEpisodes(mediaId, force = false) {
 // ../src/shared/types.ts
 var MANGA_PROVIDERS = [
   { id: "mangadex", name: "MangaDex", note: "Community scanlations with chapter titles and groups" },
+  { id: "asura", name: "Asura Scans", note: "Top scanlation source for Korean manhwa and action series" },
   { id: "weebcentral", name: "WeebCentral", note: "Large catalogue, strong on manhwa and manhua" },
   { id: "flame", name: "Flame Comics", note: "New Korean manhwa, often the only English source" },
   { id: "mangapill", name: "MangaPill", note: "Fast, popular manga; a good fallback" }
 ];
 
-// src/sources/flame.ts
-var BASE = "https://flamecomics.xyz";
-var FLAME_REFERER = `${BASE}/`;
+// src/sources/asura.ts
+var BASE = "https://asurascans.com";
+var ASURA_REFERER = `${BASE}/`;
 var norm2 = (s) => s.toLowerCase().replace(/^(a|an|the)\s+/, "").replace(/[^a-z0-9]/g, "");
+async function search2(query) {
+  const url = `${BASE}/browse/comics?q=${encodeURIComponent(query)}`;
+  const html = await retry(
+    () => getText(url, {
+      timeoutMs: 15e3,
+      headers: {
+        Referer: ASURA_REFERER,
+        Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+      }
+    })
+  );
+  const hits = [];
+  const seen = /* @__PURE__ */ new Set();
+  const linkMatches = html.matchAll(/<a[^>]*href="\/comics\/([^"]+)"[^>]*>([\s\S]*?)<\/a>/gi);
+  for (const m of linkMatches) {
+    const slug = m[1];
+    if (seen.has(slug) || slug === "comics" || slug.includes("/chapter/")) continue;
+    const clean = decodeEntities(m[2].replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim());
+    if (!clean || /^\d+(\.\d+)?$/.test(clean)) continue;
+    seen.add(slug);
+    hits.push({
+      id: slug,
+      title: clean
+    });
+  }
+  return hits;
+}
+async function match2(titles, _year) {
+  for (const title of titles) {
+    if (!title) continue;
+    const hits = await search2(title).catch(() => []);
+    if (!hits.length) continue;
+    const targetNorm = norm2(title);
+    const hit = hits.find((h) => {
+      const hn = norm2(h.title);
+      return hn === targetNorm || hn.includes(targetNorm) || targetNorm.includes(hn);
+    });
+    if (hit) return hit;
+    if (hits.length > 0) return hits[0];
+  }
+  return null;
+}
+async function chapters(seriesSlug) {
+  const url = `${BASE}/comics/${seriesSlug}`;
+  const html = await retry(
+    () => getText(url, {
+      timeoutMs: 2e4,
+      headers: { Referer: ASURA_REFERER }
+    })
+  );
+  const seen = /* @__PURE__ */ new Set();
+  const list3 = [];
+  const re = new RegExp(`href="(/comics/${seriesSlug}/chapter/([^"]+))"`, "g");
+  for (const m of html.matchAll(re)) {
+    const rawNum = m[2];
+    if (seen.has(rawNum)) continue;
+    seen.add(rawNum);
+    const n = Number(rawNum);
+    list3.push({
+      id: `asura:${seriesSlug}/${rawNum}`,
+      provider: "asura",
+      number: Number.isFinite(n) ? String(n) : rawNum,
+      title: `Chapter ${rawNum}`,
+      volume: null,
+      group: "Asura Scans",
+      pages: null,
+      publishedAt: null,
+      externalUrl: null
+    });
+  }
+  return list3.sort((a, b) => Number(a.number ?? 0) - Number(b.number ?? 0));
+}
+async function pages(sourceId) {
+  const cleanId = sourceId.replace(/^asura:/, "");
+  const [seriesSlug, chapterNum] = cleanId.split("/");
+  const url = `${BASE}/comics/${seriesSlug}/chapter/${chapterNum}`;
+  const html = await retry(
+    () => getText(url, {
+      timeoutMs: 15e3,
+      headers: { Referer: ASURA_REFERER }
+    })
+  );
+  const urls = [...new Set(html.match(/https:\/\/[^"\s\\]+\/asura-images\/chapters\/[^"\s\\]+\/[0-9]+\/[^"\s\\]+\.webp(?:\?[^"\s\\]*)?/g) ?? [])];
+  if (!urls.length) {
+    const allImgs = [...new Set(html.match(/https:\/\/[^"\s\\]+\/[^"\s\\]+\.(?:webp|jpg|jpeg|png)(?:\?[^"\s\\]*)?/g) ?? [])];
+    const filtered = allImgs.filter((u) => u.includes("chapter") || u.includes("storage") || u.includes("cdn"));
+    return (filtered.length ? filtered : allImgs).map((url2) => ({ url: url2 }));
+  }
+  return urls.map((url2) => ({ url: url2 }));
+}
+async function ping() {
+  await search2("solo");
+}
+
+// src/sources/flame.ts
+var DOMAINS = ["https://flamecomics.xyz", "https://flamecomics.com"];
+var activeBase = DOMAINS[0];
+var FLAME_REFERER = `${activeBase}/`;
+var norm3 = (s) => s.toLowerCase().replace(/^(a|an|the)\s+/, "").replace(/[^a-z0-9]/g, "");
 var catalogue = null;
 async function list2() {
   if (catalogue && Date.now() - catalogue.at < 6 * 36e5) return catalogue.list;
-  const data = await retry(() => getJson(`${BASE}/api/series`, { timeoutMs: 15e3, headers: { Referer: FLAME_REFERER } }));
-  catalogue = { at: Date.now(), list: Array.isArray(data) ? data : [] };
-  return catalogue.list;
+  let lastErr;
+  for (const domain of DOMAINS) {
+    try {
+      const data = await retry(
+        () => getJson(`${domain}/api/series`, {
+          timeoutMs: 15e3,
+          headers: { Referer: `${domain}/`, Accept: "application/json, text/plain, */*" }
+        })
+      );
+      if (Array.isArray(data) && data.length) {
+        activeBase = domain;
+        catalogue = { at: Date.now(), list: data };
+        return catalogue.list;
+      }
+    } catch (err) {
+      lastErr = err;
+    }
+  }
+  throw lastErr ?? new Error("Flame Comics unreachable");
 }
-async function match2(titles) {
-  const wanted = new Set(titles.map(norm2).filter(Boolean));
-  const hit = (await list2()).find((s) => wanted.has(norm2(decodeEntities(s.label))));
+async function match3(titles) {
+  const wanted = new Set(titles.map(norm3).filter(Boolean));
+  const hit = (await list2()).find((s) => wanted.has(norm3(decodeEntities(s.label))));
   return hit ? { id: String(hit.id), title: decodeEntities(hit.label) } : null;
 }
-async function chapters(seriesId) {
-  const html = await retry(() => getText(`${BASE}/series/${seriesId}`, { timeoutMs: 2e4, headers: { Referer: FLAME_REFERER } }));
+async function chapters2(seriesId) {
+  const html = await retry(() => getText(`${activeBase}/series/${seriesId}`, { timeoutMs: 2e4, headers: { Referer: `${activeBase}/` } }));
   const seen = /* @__PURE__ */ new Set();
   const list3 = [];
   for (const chunk of html.split('"chapter_id":').slice(1)) {
@@ -5025,14 +5153,14 @@ async function chapters(seriesId) {
   }
   return list3.sort((a, b) => Number(a.number ?? 0) - Number(b.number ?? 0));
 }
-async function pages(sourceId) {
+async function pages2(sourceId) {
   const [seriesId, token] = sourceId.split("/");
-  const html = await retry(() => getText(`${BASE}/series/${seriesId}/${token}`, { timeoutMs: 15e3, headers: { Referer: FLAME_REFERER } }));
+  const html = await retry(() => getText(`${activeBase}/series/${seriesId}/${token}`, { timeoutMs: 15e3, headers: { Referer: `${activeBase}/` } }));
   const re = new RegExp(`https://cdn\\.flamecomics\\.xyz/uploads/images/series/${seriesId}/${token}/[^"\\\\\\s?]+(?:\\?\\d+)?`, "g");
   const urls = [...new Set(html.match(re) ?? [])];
   return urls.map((url) => ({ url }));
 }
-async function ping() {
+async function ping2() {
   catalogue = null;
   await list2();
 }
@@ -5041,7 +5169,7 @@ async function ping() {
 var log5 = logger("mangadex");
 var API2 = "https://api.mangadex.org";
 var HEADERS = { "User-Agent": "PlayzAnime/0.1 (web reader)" };
-async function ping2() {
+async function ping3() {
   const res = await fetch(`${API2}/ping`, { headers: HEADERS, signal: AbortSignal.timeout(1e4) });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
 }
@@ -5049,7 +5177,7 @@ function ratingParams(adultAllowed) {
   const ratings = adultAllowed ? ["safe", "suggestive", "erotica", "pornographic"] : ["safe", "suggestive", "erotica"];
   return ratings.map((r) => `contentRating[]=${r}`).join("&");
 }
-var norm3 = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
+var norm4 = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
 function titlesOf(m) {
   return [...Object.values(m.attributes.title), ...m.attributes.altTitles.flatMap((t) => Object.values(t))];
 }
@@ -5061,12 +5189,12 @@ async function findByAnilist(anilistId, titles, adultAllowed) {
     for (const m of res.data) {
       const name = m.attributes.title.en ?? Object.values(m.attributes.title)[0] ?? title;
       if (m.attributes.links?.al === String(anilistId)) return { id: m.id, title: name };
-      if (!fallback && titlesOf(m).some((t) => norm3(t) === norm3(title))) fallback = { id: m.id, title: name };
+      if (!fallback && titlesOf(m).some((t) => norm4(t) === norm4(title))) fallback = { id: m.id, title: name };
     }
   }
   return fallback;
 }
-async function chapters2(mangaId, adultAllowed, language = "en") {
+async function chapters3(mangaId, adultAllowed, language = "en") {
   const all = [];
   for (let offset = 0, page = 0; page < 12; page++, offset += 500) {
     const url = `${API2}/manga/${mangaId}/feed?translatedLanguage[]=${language}&limit=500&offset=${offset}&order[volume]=asc&order[chapter]=asc&includes[]=scanlation_group&${ratingParams(adultAllowed)}`;
@@ -5094,7 +5222,7 @@ async function chapters2(mangaId, adultAllowed, language = "en") {
     externalUrl: c.attributes.externalUrl
   }));
 }
-async function pages2(chapterUuid, dataSaver = false) {
+async function pages3(chapterUuid, dataSaver = false) {
   const res = await retry(
     () => getJson(`${API2}/at-home/server/${chapterUuid}`, {
       headers: HEADERS,
@@ -5114,12 +5242,12 @@ async function pages2(chapterUuid, dataSaver = false) {
 // src/sources/weebcentral.ts
 var BASE2 = "https://weebcentral.com";
 var WEEBCENTRAL_REFERER = `${BASE2}/`;
-var norm4 = (s) => s.toLowerCase().replace(/^(a|an|the)\s+/, "").replace(/[^a-z0-9]/g, "");
+var norm5 = (s) => s.toLowerCase().replace(/^(a|an|the)\s+/, "").replace(/[^a-z0-9]/g, "");
 var READABLE_KINDS = ["manga", "manhwa", "manhua", "oel"];
 function plainQuery(title) {
   return title.replace(/[‘’ʼ`´]/g, "'").replace(/[“”]/g, '"').replace(/[‐‑‒–—―]/g, "-").replace(/\s+/g, " ").trim();
 }
-async function search2(query) {
+async function search3(query) {
   const url = `${BASE2}/search/data?text=${encodeURIComponent(plainQuery(query))}&sort=Best%20Match&order=Descending&official=Any&display_mode=Minimal%20Display&limit=16&offset=0`;
   const html = await retry(() => getText(url, { timeoutMs: 15e3, headers: { "HX-Request": "true", Referer: WEEBCENTRAL_REFERER } }));
   const hits = [];
@@ -5140,19 +5268,19 @@ var STOP_WORDS = /* @__PURE__ */ new Set(["the", "and", "for", "with", "from", "
 function keywords(title) {
   return title.split(/[^\p{L}\p{N}]+/u).filter((w) => w.length > 2 && !STOP_WORDS.has(w.toLowerCase())).slice(0, 6).join(" ");
 }
-async function match3(titles, year) {
+async function match4(titles, year) {
   for (const title of titles.slice(0, 3)) {
-    const t = norm4(title);
+    const t = norm5(title);
     for (const query of [.../* @__PURE__ */ new Set([plainQuery(title), keywords(title)])].filter(Boolean)) {
-      const hits = (await search2(query)).filter((h) => !h.kind || READABLE_KINDS.includes(h.kind.toLowerCase()));
-      const exact = hits.filter((h) => norm4(h.title) === t);
+      const hits = (await search3(query)).filter((h) => !h.kind || READABLE_KINDS.includes(h.kind.toLowerCase()));
+      const exact = hits.filter((h) => norm5(h.title) === t);
       const pick = exact.find((h) => !year || !h.year || Math.abs(h.year - year) <= 1) ?? (exact.length === 1 ? exact[0] : void 0);
       if (pick) return pick;
     }
   }
   return null;
 }
-async function chapters3(seriesId) {
+async function chapters4(seriesId) {
   const html = await retry(() => getText(`${BASE2}/series/${seriesId}/full-chapter-list`, { timeoutMs: 2e4, headers: { "HX-Request": "true", Referer: WEEBCENTRAL_REFERER } }));
   const list3 = [];
   const seen = /* @__PURE__ */ new Set();
@@ -5178,7 +5306,7 @@ async function chapters3(seriesId) {
   }
   return list3.reverse();
 }
-async function pages3(chapterId) {
+async function pages4(chapterId) {
   const html = await retry(
     () => getText(`${BASE2}/chapters/${chapterId}/images?is_prev=False&current_page=1&reading_style=long_strip`, {
       timeoutMs: 15e3,
@@ -5188,15 +5316,15 @@ async function pages3(chapterId) {
   const urls = [...html.matchAll(/<img[^>]+src="(https:\/\/[^"]+)"[^>]*alt="Page \d+"/g)].map((m) => decodeEntities(m[1]));
   return urls.map((url) => ({ url }));
 }
-async function ping3() {
-  await search2("one piece");
+async function ping4() {
+  await search3("one piece");
 }
 
 // src/sources/mangapill.ts
 var BASE3 = "https://mangapill.com";
 var MANGAPILL_REFERER = `${BASE3}/`;
-var norm5 = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
-async function search3(query) {
+var norm6 = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
+async function search4(query) {
   const html = await retry(() => getText(`${BASE3}/search?q=${encodeURIComponent(plainQuery(query))}`, { timeoutMs: 15e3 }));
   const root = parse(html);
   const hits = [];
@@ -5220,12 +5348,12 @@ async function search3(query) {
 }
 var isNovel = (h) => /\bnovel\b/i.test(`${h.title} ${h.altTitle ?? ""}`);
 var yearFits = (h, year) => !year || !h.year || Math.abs(h.year - year) <= 1;
-async function match4(titles, year) {
+async function match5(titles, year) {
   let loose = null;
   for (const title of titles.slice(0, 3)) {
-    const hits = (await search3(title)).filter((h) => !isNovel(h));
-    const t = norm5(title);
-    const names = (h) => [norm5(h.title), h.altTitle ? norm5(h.altTitle) : ""].filter(Boolean);
+    const hits = (await search4(title)).filter((h) => !isNovel(h));
+    const t = norm6(title);
+    const names = (h) => [norm6(h.title), h.altTitle ? norm6(h.altTitle) : ""].filter(Boolean);
     const exact = hits.filter((h) => names(h).includes(t));
     const pick = exact.find((h) => yearFits(h, year)) ?? exact[0];
     if (pick) return pick;
@@ -5235,7 +5363,7 @@ async function match4(titles, year) {
   }
   return loose;
 }
-async function chapters4(path5) {
+async function chapters5(path5) {
   const html = await retry(() => getText(`${BASE3}${path5}`, { timeoutMs: 15e3 }));
   const root = parse(html);
   const seen = /* @__PURE__ */ new Set();
@@ -5260,7 +5388,7 @@ async function chapters4(path5) {
   }
   return list3.reverse();
 }
-async function pages4(chapterPath) {
+async function pages5(chapterPath) {
   const html = await retry(() => getText(`${BASE3}${chapterPath}`, { timeoutMs: 15e3 }));
   const root = parse(html);
   const result = root.querySelectorAll("img.js-page").map((img) => ({
@@ -5270,6 +5398,889 @@ async function pages4(chapterPath) {
   }));
   return result.filter((p) => /^https?:\/\//.test(p.url));
 }
+
+// src/extensions/catalog.ts
+var EXTENSION_CATALOG = [
+  // ── Core Unblocked & Fast Scanlation Sources ───────────────────────────────
+  {
+    id: "asura",
+    name: "Asura Scans",
+    baseUrl: "https://asuracomic.net",
+    engine: "mangastream",
+    category: "manhwa",
+    note: "Premiere Korean manhwa releases (Solo Leveling, Mount Hua, Disaster-Class Hero)",
+    enabled: true
+  },
+  {
+    id: "mangadex",
+    name: "MangaDex",
+    baseUrl: "https://api.mangadex.org",
+    engine: "custom",
+    category: "manga",
+    note: "Global scanlation archive with over 100,000+ manga and manhwa titles",
+    enabled: true
+  },
+  {
+    id: "mangapill",
+    name: "MangaPill",
+    baseUrl: "https://mangapill.com",
+    engine: "custom",
+    category: "manga",
+    note: "Fast, reliable mainstream manga reader with zero Cloudflare bottlenecks",
+    enabled: true
+  },
+  {
+    id: "weebcentral",
+    name: "WeebCentral",
+    baseUrl: "https://weebcentral.com",
+    engine: "custom",
+    category: "manhwa",
+    note: "Massive Asian comic catalogue (50,000+ titles). Unblocked on Desktop app.",
+    enabled: true,
+    desktopOnly: true
+  },
+  {
+    id: "flame",
+    name: "Flame Comics",
+    baseUrl: "https://flamecomics.com",
+    engine: "custom",
+    category: "manhwa",
+    note: "Korean action manhwa scanlation team. Unblocked on Desktop app.",
+    enabled: true,
+    desktopOnly: true
+  },
+  // ── Dedicated Korean & Action Scanlation Teams (MangaStream / Themesia) ───
+  {
+    id: "reaperscans",
+    name: "Reaper Scans",
+    baseUrl: "https://reaperscans.com",
+    engine: "mangastream",
+    category: "manhwa",
+    note: "Top scanlation team for high fantasy & martial arts manhwa",
+    enabled: true
+  },
+  {
+    id: "radiantscans",
+    name: "Radiant Scans",
+    baseUrl: "https://radiantscans.com",
+    engine: "mangastream",
+    category: "manhwa",
+    note: "High-definition Korean manhwa and webtoon translations",
+    enabled: true
+  },
+  {
+    id: "voidscans",
+    name: "Hive Scans (Void)",
+    baseUrl: "https://hivescans.com",
+    engine: "mangastream",
+    category: "manhwa",
+    note: "Fast action manhwa and dungeon progression releases",
+    enabled: true
+  },
+  {
+    id: "suryascans",
+    name: "Surya Scans",
+    baseUrl: "https://suryascans.com",
+    engine: "mangastream",
+    category: "manhwa",
+    note: "Korean manhwa translation scans",
+    enabled: true
+  },
+  {
+    id: "nightscans",
+    name: "Night Comic",
+    baseUrl: "https://nightcomic.com",
+    engine: "mangastream",
+    category: "manhwa",
+    note: "Action, regression and levelling manhwa titles",
+    enabled: true
+  },
+  {
+    id: "drakescans",
+    name: "Drake Scans",
+    baseUrl: "https://drakescans.com",
+    engine: "mangastream",
+    category: "manhwa",
+    note: "Action manhwa and murim martial arts series",
+    enabled: true
+  },
+  {
+    id: "zeroscans",
+    name: "Zero Scans",
+    baseUrl: "https://zeroscans.com",
+    engine: "mangastream",
+    category: "manhwa",
+    note: "High-quality Korean and Chinese comic releases",
+    enabled: true
+  },
+  {
+    id: "cosmicscans",
+    name: "Cosmic Scans",
+    baseUrl: "https://cosmicscans.com",
+    engine: "mangastream",
+    category: "manhwa",
+    note: "Action and fantasy manhwa scans",
+    enabled: true
+  },
+  {
+    id: "immortalupdates",
+    name: "Immortal Updates",
+    baseUrl: "https://immortalupdates.com",
+    engine: "mangastream",
+    category: "manhua",
+    note: "Cultivation and martial arts manhua translations",
+    enabled: true
+  },
+  {
+    id: "resetscans",
+    name: "Reset Scans",
+    baseUrl: "https://reset-scans.com",
+    engine: "mangastream",
+    category: "manhwa",
+    note: "Fantasy and reincarnation manhwa projects",
+    enabled: true
+  },
+  {
+    id: "luminous",
+    name: "Luminous Scans",
+    baseUrl: "https://luminousscans.com",
+    engine: "mangastream",
+    category: "manhwa",
+    note: "High-quality scanlations for Legend of the Northern Blade and action manhwa",
+    enabled: true
+  },
+  {
+    id: "astrascans",
+    name: "Astra Scans",
+    baseUrl: "https://astrascans.com",
+    engine: "mangastream",
+    category: "manhwa",
+    note: "Korean action and adventure scanlations",
+    enabled: true
+  },
+  {
+    id: "anxiousfansub",
+    name: "Anxious Fansub",
+    baseUrl: "https://anxiousfansub.com",
+    engine: "mangastream",
+    category: "manhwa",
+    note: "Webtoon and manhwa releases",
+    enabled: true
+  },
+  {
+    id: "realmscans",
+    name: "Rizz Comics",
+    baseUrl: "https://rizzcomic.com",
+    engine: "mangastream",
+    category: "manhwa",
+    note: "Popular Korean action manhwa and regression stories",
+    enabled: true
+  },
+  // ── Madara WordPress Scanlation & Webtoon Engines ──────────────────────────
+  {
+    id: "manhuaplus",
+    name: "ManhuaPlus",
+    baseUrl: "https://manhuaplus.org",
+    engine: "madara",
+    category: "manhua",
+    note: "Leading cultivation and action series (Apotheosis, Tales of Demons and Gods)",
+    enabled: true
+  },
+  {
+    id: "toonily",
+    name: "Toonily",
+    baseUrl: "https://toonily.com",
+    engine: "madara",
+    category: "webtoon",
+    note: "Large manhwa and full-colour Korean webtoon library",
+    enabled: true
+  },
+  {
+    id: "mangatx",
+    name: "MangaTx",
+    baseUrl: "https://mangatx.com",
+    engine: "madara",
+    category: "manhwa",
+    note: "Daily updated Korean manhwa and Chinese manhua",
+    enabled: true
+  },
+  {
+    id: "mangaclash",
+    name: "MangaClash",
+    baseUrl: "https://mangaclash.com",
+    engine: "madara",
+    category: "manhwa",
+    note: "Broad webtoon and scanlation aggregator",
+    enabled: true
+  },
+  {
+    id: "1stkissmanga",
+    name: "1stKissManga",
+    baseUrl: "https://1stkissmanga.me",
+    engine: "madara",
+    category: "manhwa",
+    note: "Romance, fantasy and action manhwa catalogue",
+    enabled: true
+  },
+  {
+    id: "mangachill",
+    name: "MangaChill",
+    baseUrl: "https://mangachill.net",
+    engine: "madara",
+    category: "webtoon",
+    note: "Webtoons, romance and fantasy manhwa series",
+    enabled: true
+  },
+  {
+    id: "kunmanga",
+    name: "KunManga",
+    baseUrl: "https://kunmanga.com",
+    engine: "madara",
+    category: "manhwa",
+    note: "Extensive webtoon collection with daily updates",
+    enabled: true
+  },
+  {
+    id: "webtoonxyz",
+    name: "WebtoonXYZ",
+    baseUrl: "https://www.webtoon.xyz",
+    engine: "madara",
+    category: "webtoon",
+    note: "Dedicated Korean webtoon and vertical scroll reader",
+    enabled: true
+  },
+  {
+    id: "readmanhwa",
+    name: "ReadManhwa",
+    baseUrl: "https://readmanhwa.com",
+    engine: "madara",
+    category: "manhwa",
+    note: "Korean manhwa exclusive library",
+    enabled: true
+  },
+  {
+    id: "topmanhua",
+    name: "TopManhua",
+    baseUrl: "https://topmanhua.com",
+    engine: "madara",
+    category: "manhua",
+    note: "Chinese martial arts and levelling manhua",
+    enabled: true
+  },
+  {
+    id: "mangakomi",
+    name: "MangaKomi",
+    baseUrl: "https://mangakomi.io",
+    engine: "madara",
+    category: "manhwa",
+    note: "Manhwa, manhua and Japanese manga releases",
+    enabled: true
+  },
+  {
+    id: "mangabob",
+    name: "MangaBob",
+    baseUrl: "https://mangabob.com",
+    engine: "madara",
+    category: "manhwa",
+    note: "Action, comedy, and fantasy manhwa collection",
+    enabled: true
+  },
+  {
+    id: "mangagreat",
+    name: "MangaGreat",
+    baseUrl: "https://mangagreat.com",
+    engine: "madara",
+    category: "manhwa",
+    note: "Webtoon updates and fast releases",
+    enabled: true
+  },
+  {
+    id: "s2manga",
+    name: "S2Manga",
+    baseUrl: "https://s2manga.com",
+    engine: "madara",
+    category: "webtoon",
+    note: "Webtoon releases with high image resolution",
+    enabled: true
+  },
+  {
+    id: "hiperdex",
+    name: "Hiperdex",
+    baseUrl: "https://hiperdex.com",
+    engine: "madara",
+    category: "webtoon",
+    note: "Modern webtoons and full-colour series",
+    enabled: true
+  },
+  {
+    id: "manhwatop",
+    name: "ManhwaTop",
+    baseUrl: "https://manhwatop.com",
+    engine: "madara",
+    category: "manhwa",
+    note: "Top trending Korean manhwa updates",
+    enabled: true
+  },
+  {
+    id: "mangademon",
+    name: "MangaDemon",
+    baseUrl: "https://mangademon.org",
+    engine: "madara",
+    category: "manhwa",
+    note: "Dark fantasy and action manhwa catalogue",
+    enabled: true
+  },
+  {
+    id: "mangacult",
+    name: "MangaCult",
+    baseUrl: "https://mangacult.org",
+    engine: "madara",
+    category: "manga",
+    note: "Manga and manhwa chapter releases",
+    enabled: true
+  },
+  {
+    id: "mangaweebs",
+    name: "MangaWeebs",
+    baseUrl: "https://mangaweebs.in",
+    engine: "madara",
+    category: "manga",
+    note: "Manga scanlations with clean layouts",
+    enabled: true
+  },
+  {
+    id: "mangaeffect",
+    name: "MangaEffect",
+    baseUrl: "https://mangaeffect.com",
+    engine: "madara",
+    category: "manhwa",
+    note: "Action and fantasy manhwa collection",
+    enabled: true
+  },
+  // ── MangaBox Large Catalogs (MangaKakalot / Manganato) ─────────────────────
+  {
+    id: "mangakakalot",
+    name: "MangaKakalot",
+    baseUrl: "https://mangakakalot.com",
+    engine: "mangabox",
+    category: "manga",
+    note: "One of the largest, longest-standing manga databases online",
+    enabled: true
+  },
+  {
+    id: "manganato",
+    name: "Manganato",
+    baseUrl: "https://manganato.com",
+    engine: "mangabox",
+    category: "manga",
+    note: "Massive library of completed and releasing manga and manhwa",
+    enabled: true
+  },
+  {
+    id: "chapmanganato",
+    name: "ChapManganato",
+    baseUrl: "https://chapmanganato.to",
+    engine: "mangabox",
+    category: "manga",
+    note: "Direct fast chapter mirror for Manganato",
+    enabled: true
+  },
+  {
+    id: "readmanganato",
+    name: "ReadManganato",
+    baseUrl: "https://readmanganato.com",
+    engine: "mangabox",
+    category: "manga",
+    note: "Alternative fast mirror for Manganato series",
+    enabled: true
+  },
+  // ── Custom Aggregators & Classic Archives ──────────────────────────────────
+  {
+    id: "batoto",
+    name: "Bato.to",
+    baseUrl: "https://bato.to",
+    engine: "custom",
+    category: "webtoon",
+    note: "Huge community library with high-res scans, manhwa and webtoons",
+    enabled: true
+  },
+  {
+    id: "mangafire",
+    name: "MangaFire",
+    baseUrl: "https://mangafire.to",
+    engine: "custom",
+    category: "manga",
+    note: "Modern manga and manhwa reader with multi-language scans",
+    enabled: true
+  },
+  {
+    id: "tcbscans",
+    name: "TCB Scans",
+    baseUrl: "https://tcbscans.me",
+    engine: "custom",
+    category: "manga",
+    note: "Industry standard for Weekly Shonen Jump (One Piece, JJK)",
+    enabled: true
+  },
+  {
+    id: "mangahere",
+    name: "MangaHere",
+    baseUrl: "https://www.mangahere.cc",
+    engine: "custom",
+    category: "manga",
+    note: "Classic manga archive with extensive completed titles",
+    enabled: true
+  },
+  {
+    id: "fanfox",
+    name: "FanFox (MangaFox)",
+    baseUrl: "https://fanfox.net",
+    engine: "custom",
+    category: "manga",
+    note: "Deep retro and modern manga catalogue",
+    enabled: true
+  },
+  {
+    id: "mangareader",
+    name: "MangaReader",
+    baseUrl: "https://mangareader.to",
+    engine: "custom",
+    category: "manga",
+    note: "Fast streaming manga reader",
+    enabled: true
+  },
+  {
+    id: "kissmanga",
+    name: "KissManga",
+    baseUrl: "https://kissmanga.org",
+    engine: "custom",
+    category: "manga",
+    note: "Large index of ongoing and completed series",
+    enabled: true
+  },
+  {
+    id: "mangafreak",
+    name: "MangaFreak",
+    baseUrl: "https://mangafreak.net",
+    engine: "custom",
+    category: "manga",
+    note: "Direct chapter downloads and archive reader",
+    enabled: true
+  },
+  {
+    id: "mangapark",
+    name: "MangaPark",
+    baseUrl: "https://mangapark.net",
+    engine: "custom",
+    category: "manga",
+    note: "Multi-version scanlation aggregator with reader comments",
+    enabled: true
+  },
+  {
+    id: "mangasee",
+    name: "MangaSee",
+    baseUrl: "https://mangasee123.com",
+    engine: "custom",
+    category: "manga",
+    note: "Official rip qualities for popular weekly manga",
+    enabled: true
+  },
+  {
+    id: "mangalife",
+    name: "MangaLife",
+    baseUrl: "https://mangalife.us",
+    engine: "custom",
+    category: "manga",
+    note: "Fast mirror for high-definition manga releases",
+    enabled: true
+  },
+  {
+    id: "comick",
+    name: "Comick",
+    baseUrl: "https://comick.io",
+    engine: "custom",
+    category: "manhwa",
+    note: "Clean manhwa and manga reader with comprehensive group tracking",
+    enabled: true
+  },
+  {
+    id: "mangaowl",
+    name: "MangaOwl",
+    baseUrl: "https://mangaowl.io",
+    engine: "custom",
+    category: "webtoon",
+    note: "Webtoon, romance and action manhwa archive",
+    enabled: true
+  }
+];
+
+// src/extensions/drivers/madara.ts
+var USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36";
+function normalize(s) {
+  return s.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+}
+function score2(a, b) {
+  const an = normalize(a);
+  const bn = normalize(b);
+  if (an === bn) return 1;
+  if (an.includes(bn) || bn.includes(an)) return 0.8;
+  return 0;
+}
+var MadaraDriver = class {
+  config;
+  constructor(config2) {
+    this.config = config2;
+  }
+  async ping() {
+    const res = await fetch(this.config.baseUrl, {
+      headers: { "User-Agent": USER_AGENT },
+      signal: AbortSignal.timeout(8e3)
+    });
+    return res.ok;
+  }
+  async find(media2, _adultAllowed) {
+    const titles = [media2.title.romaji, media2.title.english, ...media2.synonyms ?? []].filter(Boolean);
+    for (const title of titles.slice(0, 3)) {
+      try {
+        const searchUrl = `${this.config.baseUrl}/?s=${encodeURIComponent(title)}&post_type=wp-manga`;
+        const res = await fetch(searchUrl, {
+          headers: { "User-Agent": USER_AGENT, Referer: this.config.baseUrl },
+          signal: AbortSignal.timeout(8e3)
+        });
+        if (!res.ok) continue;
+        const html = await res.text();
+        const matches = [...html.matchAll(/<h3\b[^>]*class=["'][^"']*h4[^"']*["'][^>]*>\s*<a\s+href=["']([^"']+)["'][^>]*>(.*?)<\/a>/gis)].map((m) => ({ url: m[1], title: m[2].replace(/<[^>]+>/g, "").trim() }));
+        for (const match6 of matches) {
+          if (titles.some((t) => score2(t, match6.title) >= 0.8)) {
+            const path5 = match6.url.replace(this.config.baseUrl, "").replace(/^\/+/, "");
+            return { sourceId: path5, title: match6.title };
+          }
+        }
+      } catch {
+        continue;
+      }
+    }
+    return null;
+  }
+  async chapters(sourceId) {
+    const pageUrl = `${this.config.baseUrl}/${sourceId.replace(/^\/+/, "")}`;
+    const res = await fetch(pageUrl, {
+      headers: { "User-Agent": USER_AGENT, Referer: this.config.baseUrl },
+      signal: AbortSignal.timeout(1e4)
+    });
+    if (!res.ok) return [];
+    let html = await res.text();
+    const postIdMatch = html.match(/id="manga-chapters-holder"\s+data-id="(\d+)"/i) || html.match(/class="wp-manga-action-button"\s+data-post="(\d+)"/i);
+    if (postIdMatch) {
+      try {
+        const ajaxRes = await fetch(`${this.config.baseUrl}/wp-admin/admin-ajax.php`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+            "User-Agent": USER_AGENT,
+            "X-Requested-With": "XMLHttpRequest",
+            Referer: pageUrl
+          },
+          body: `action=manga_get_chapters&manga=${postIdMatch[1]}`,
+          signal: AbortSignal.timeout(8e3)
+        });
+        if (ajaxRes.ok) {
+          const ajaxHtml = await ajaxRes.text();
+          if (ajaxHtml.includes("wp-manga-chapter")) html = ajaxHtml;
+        }
+      } catch {
+      }
+    }
+    const chapterMatches = [...html.matchAll(/<li\b[^>]*class=["'][^"']*wp-manga-chapter[^"']*["'][^>]*>\s*<a\s+href=["']([^"']+)["'][^>]*>(.*?)<\/a>/gis)].map((m) => {
+      const url = m[1];
+      const text = m[2].replace(/<[^>]+>/g, "").trim();
+      const numMatch = text.match(/(?:chapter|ch\.?)\s*([0-9.]+)/i) || url.match(/chapter-([0-9.]+)/i);
+      const number = numMatch ? numMatch[1] : null;
+      const path5 = url.replace(this.config.baseUrl, "").replace(/^\/+/, "");
+      return {
+        id: `${this.config.id}:${path5}`,
+        provider: this.config.id,
+        number,
+        title: text || (number ? `Chapter ${number}` : null),
+        volume: null,
+        group: this.config.name,
+        pages: null,
+        publishedAt: null,
+        externalUrl: null
+      };
+    });
+    return chapterMatches;
+  }
+  async pages(sourceId) {
+    const chapterUrl = `${this.config.baseUrl}/${sourceId.replace(/^\/+/, "")}`;
+    const res = await fetch(chapterUrl, {
+      headers: { "User-Agent": USER_AGENT, Referer: this.config.baseUrl },
+      signal: AbortSignal.timeout(1e4)
+    });
+    if (!res.ok) return [];
+    const html = await res.text();
+    const imgMatches = [...html.matchAll(/<img\b[^>]+(?:data-src|data-lazy-src|src)=["']([^"']+)["'][^>]*class=["'][^"']*wp-manga-chapter-img[^"']*["']/gi)].map((m) => m[1].trim());
+    if (imgMatches.length) {
+      return imgMatches.map((url) => ({ url }));
+    }
+    const contentMatch = html.match(/<div\b[^>]*class=["'][^"']*reading-content[^"']*["'][^>]*>([\s\S]*?)<\/div>/i);
+    if (contentMatch) {
+      const imgs = [...contentMatch[1].matchAll(/<img\b[^>]+(?:data-src|data-lazy-src|src)=["']([^"']+)["']/gi)].map((m) => m[1].trim()).filter((u) => !u.endsWith(".gif") && !u.includes("logo") && !u.includes("banner"));
+      return imgs.map((url) => ({ url }));
+    }
+    return [];
+  }
+};
+
+// src/extensions/drivers/mangabox.ts
+var USER_AGENT2 = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36";
+function normalize2(s) {
+  return s.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+}
+function score3(a, b) {
+  const an = normalize2(a);
+  const bn = normalize2(b);
+  if (an === bn) return 1;
+  if (an.includes(bn) || bn.includes(an)) return 0.8;
+  return 0;
+}
+var MangaBoxDriver = class {
+  config;
+  constructor(config2) {
+    this.config = config2;
+  }
+  async ping() {
+    const res = await fetch(this.config.baseUrl, {
+      headers: { "User-Agent": USER_AGENT2 },
+      signal: AbortSignal.timeout(8e3)
+    });
+    return res.ok;
+  }
+  async find(media2, _adultAllowed) {
+    const titles = [media2.title.romaji, media2.title.english, ...media2.synonyms ?? []].filter(Boolean);
+    for (const title of titles.slice(0, 3)) {
+      try {
+        const querySlug = normalize2(title).replace(/\s+/g, "_");
+        const searchUrl = `${this.config.baseUrl}/search/story/${encodeURIComponent(querySlug)}`;
+        const res = await fetch(searchUrl, {
+          headers: { "User-Agent": USER_AGENT2, Referer: this.config.baseUrl },
+          signal: AbortSignal.timeout(8e3)
+        });
+        if (!res.ok) continue;
+        const html = await res.text();
+        const matches = [...html.matchAll(/<h3\b[^>]*class=["'][^"']*item-title[^"']*["'][^>]*>\s*<a\s+href=["']([^"']+)["'][^>]*>(.*?)<\/a>/gis)].map((m) => ({ url: m[1], title: m[2].replace(/<[^>]+>/g, "").trim() }));
+        for (const match6 of matches) {
+          if (titles.some((t) => score3(t, match6.title) >= 0.8)) {
+            const path5 = match6.url.replace(this.config.baseUrl, "").replace(/^\/+/, "");
+            return { sourceId: path5, title: match6.title };
+          }
+        }
+      } catch {
+        continue;
+      }
+    }
+    return null;
+  }
+  async chapters(sourceId) {
+    const pageUrl = `${this.config.baseUrl}/${sourceId.replace(/^\/+/, "")}`;
+    const res = await fetch(pageUrl, {
+      headers: { "User-Agent": USER_AGENT2, Referer: this.config.baseUrl },
+      signal: AbortSignal.timeout(1e4)
+    });
+    if (!res.ok) return [];
+    const html = await res.text();
+    const chapterMatches = [...html.matchAll(/<a\b[^>]*class=["']chapter-name[^"']*["']\s+href=["']([^"']+)["'][^>]*>(.*?)<\/a>/gis)].map((m) => {
+      const url = m[1];
+      const text = m[2].replace(/<[^>]+>/g, "").trim();
+      const numMatch = text.match(/chapter\s*([0-9.]+)/i);
+      const number = numMatch ? numMatch[1] : null;
+      const path5 = url.replace(this.config.baseUrl, "").replace(/^\/+/, "");
+      return {
+        id: `${this.config.id}:${path5}`,
+        provider: this.config.id,
+        number,
+        title: text || (number ? `Chapter ${number}` : null),
+        volume: null,
+        group: this.config.name,
+        pages: null,
+        publishedAt: null,
+        externalUrl: null
+      };
+    });
+    return chapterMatches;
+  }
+  async pages(sourceId) {
+    const chapterUrl = `${this.config.baseUrl}/${sourceId.replace(/^\/+/, "")}`;
+    const res = await fetch(chapterUrl, {
+      headers: { "User-Agent": USER_AGENT2, Referer: this.config.baseUrl },
+      signal: AbortSignal.timeout(1e4)
+    });
+    if (!res.ok) return [];
+    const html = await res.text();
+    const imgMatches = [...html.matchAll(/<div\b[^>]*class=["']container-chapter-reader["'][\s\S]*?<img\b[^>]+src=["']([^"']+)["']/gis)].map((m) => m[1].trim());
+    if (imgMatches.length) return imgMatches.map((url) => ({ url }));
+    const anyImgs = [...html.matchAll(/<img\b[^>]+src=["'](https?:\/\/[^"']+\.(?:jpg|jpeg|png|webp))["']/gi)].map((m) => m[1].trim()).filter((u) => u.includes("chapter") || u.includes("manga") || u.includes("image"));
+    return anyImgs.map((url) => ({ url }));
+  }
+};
+
+// src/extensions/drivers/mangastream.ts
+var USER_AGENT3 = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36";
+function normalize3(s) {
+  return s.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+}
+function score4(a, b) {
+  const an = normalize3(a);
+  const bn = normalize3(b);
+  if (an === bn) return 1;
+  if (an.includes(bn) || bn.includes(an)) return 0.8;
+  return 0;
+}
+var MangaStreamDriver = class {
+  config;
+  constructor(config2) {
+    this.config = config2;
+  }
+  async ping() {
+    const res = await fetch(this.config.baseUrl, {
+      headers: { "User-Agent": USER_AGENT3 },
+      signal: AbortSignal.timeout(8e3)
+    });
+    return res.ok;
+  }
+  async find(media2, _adultAllowed) {
+    const titles = [media2.title.romaji, media2.title.english, ...media2.synonyms ?? []].filter(Boolean);
+    for (const title of titles.slice(0, 3)) {
+      try {
+        const searchUrl = `${this.config.baseUrl}/?s=${encodeURIComponent(title)}`;
+        const res = await fetch(searchUrl, {
+          headers: { "User-Agent": USER_AGENT3, Referer: this.config.baseUrl },
+          signal: AbortSignal.timeout(8e3)
+        });
+        if (!res.ok) continue;
+        const html = await res.text();
+        const matches = [...html.matchAll(/<div\b[^>]*class=["'][^"']*(?:bsx|animepost)[^"']*["'][^>]*>[\s\S]*?<a\s+href=["']([^"']+)["']\s+title=["']([^"']+)["']/gis)].map((m) => ({ url: m[1], title: m[2].trim() }));
+        for (const match6 of matches) {
+          if (titles.some((t) => score4(t, match6.title) >= 0.8)) {
+            const path5 = match6.url.replace(this.config.baseUrl, "").replace(/^\/+/, "");
+            return { sourceId: path5, title: match6.title };
+          }
+        }
+      } catch {
+        continue;
+      }
+    }
+    return null;
+  }
+  async chapters(sourceId) {
+    const pageUrl = `${this.config.baseUrl}/${sourceId.replace(/^\/+/, "")}`;
+    const res = await fetch(pageUrl, {
+      headers: { "User-Agent": USER_AGENT3, Referer: this.config.baseUrl },
+      signal: AbortSignal.timeout(1e4)
+    });
+    if (!res.ok) return [];
+    const html = await res.text();
+    const chapterMatches = [...html.matchAll(/<li\b[^>]*data-num=["']([^"']+)["'][^>]*>[\s\S]*?<a\s+href=["']([^"']+)["'][\s\S]*?<span\s+class=["']chapternum["']>([^<]+)<\/span>/gis)].map((m) => {
+      const number = m[1].trim();
+      const url = m[2];
+      const text = m[3].trim();
+      const path5 = url.replace(this.config.baseUrl, "").replace(/^\/+/, "");
+      return {
+        id: `${this.config.id}:${path5}`,
+        provider: this.config.id,
+        number,
+        title: text || `Chapter ${number}`,
+        volume: null,
+        group: this.config.name,
+        pages: null,
+        publishedAt: null,
+        externalUrl: null
+      };
+    });
+    if (chapterMatches.length) return chapterMatches;
+    const fallbackMatches = [...html.matchAll(/<div\b[^>]*class=["']eplister["'][\s\S]*?<a\s+href=["']([^"']+)["'][\s\S]*?<span\s+class=["']chapternum["']>([^<]+)<\/span>/gis)].map((m) => {
+      const url = m[1];
+      const text = m[2].trim();
+      const numMatch = text.match(/([0-9.]+)/);
+      const number = numMatch ? numMatch[1] : null;
+      const path5 = url.replace(this.config.baseUrl, "").replace(/^\/+/, "");
+      return {
+        id: `${this.config.id}:${path5}`,
+        provider: this.config.id,
+        number,
+        title: text,
+        volume: null,
+        group: this.config.name,
+        pages: null,
+        publishedAt: null,
+        externalUrl: null
+      };
+    });
+    return fallbackMatches;
+  }
+  async pages(sourceId) {
+    const chapterUrl = `${this.config.baseUrl}/${sourceId.replace(/^\/+/, "")}`;
+    const res = await fetch(chapterUrl, {
+      headers: { "User-Agent": USER_AGENT3, Referer: this.config.baseUrl },
+      signal: AbortSignal.timeout(1e4)
+    });
+    if (!res.ok) return [];
+    const html = await res.text();
+    const tsMatch = html.match(/ts_reader\.run\((\{[\s\S]*?\})\);/);
+    if (tsMatch) {
+      try {
+        const data = JSON.parse(tsMatch[1]);
+        const images = data.sources?.[0]?.images ?? [];
+        if (images.length) return images.map((url) => ({ url }));
+      } catch {
+      }
+    }
+    const imgMatches = [...html.matchAll(/<img\b[^>]+(?:data-lazy-src|data-src|src)=["']([^"']+)["'][^>]*class=["'][^"']*ts-main-image[^"']*["']/gi)].map((m) => m[1].trim());
+    return imgMatches.map((url) => ({ url }));
+  }
+};
+
+// src/extensions/registry.ts
+var ExtensionRegistry = class {
+  sources = /* @__PURE__ */ new Map();
+  userEnabled = /* @__PURE__ */ new Map();
+  constructor() {
+    this.init();
+  }
+  init() {
+    for (const config2 of EXTENSION_CATALOG) {
+      let driver = null;
+      if (config2.engine === "madara") {
+        driver = new MadaraDriver(config2);
+      } else if (config2.engine === "mangastream") {
+        driver = new MangaStreamDriver(config2);
+      } else if (config2.engine === "mangabox") {
+        driver = new MangaBoxDriver(config2);
+      }
+      if (driver) {
+        this.sources.set(config2.id, driver);
+      }
+    }
+  }
+  getAllConfigs() {
+    return EXTENSION_CATALOG.map((c) => ({
+      ...c,
+      enabled: this.userEnabled.has(c.id) ? this.userEnabled.get(c.id) : c.enabled ?? true
+    }));
+  }
+  getSource(id) {
+    return this.sources.get(id);
+  }
+  toggle(id, enabled) {
+    this.userEnabled.set(id, enabled);
+  }
+  isEnabled(id) {
+    if (this.userEnabled.has(id)) return this.userEnabled.get(id);
+    const found = EXTENSION_CATALOG.find((c) => c.id === id);
+    return found?.enabled ?? true;
+  }
+};
+var extensionRegistry = new ExtensionRegistry();
 
 // src/manga.ts
 var log6 = logger("manga");
@@ -5285,56 +6296,92 @@ var SOURCES = {
       const hit = await findByAnilist(media2.id, titlesFor(media2), adult);
       return hit ? { sourceId: hit.id, title: hit.title } : null;
     },
-    chapters: (id, adult) => chapters2(id, adult),
-    pages: (id, saver) => pages2(id, saver),
-    ping: () => ping2(),
+    chapters: (id, adult) => chapters3(id, adult),
+    pages: (id, saver) => pages3(id, saver),
+    ping: () => ping3(),
     idPattern: /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
     adultAware: true
   },
-  weebcentral: {
+  asura: {
     find: async (media2) => {
-      const hit = await match3(titlesFor(media2), media2.startDate?.year ?? null);
-      return hit ? { sourceId: hit.id, title: hit.title } : null;
-    },
-    chapters: (id) => chapters3(id),
-    pages: (id) => pages3(id),
-    ping: () => ping3(),
-    referer: WEEBCENTRAL_REFERER,
-    idPattern: /^[A-Z0-9]{10,40}$/
-  },
-  flame: {
-    find: async (media2) => {
-      const hit = await match2(titlesFor(media2));
+      const hit = await match2(titlesFor(media2), media2.startDate?.year ?? null);
       return hit ? { sourceId: hit.id, title: hit.title } : null;
     },
     chapters: (id) => chapters(id),
     pages: (id) => pages(id),
     ping: () => ping(),
+    referer: ASURA_REFERER,
+    idPattern: /^[a-z0-9\-]+\/[0-9.]+$/
+  },
+  weebcentral: {
+    find: async (media2) => {
+      const hit = await match4(titlesFor(media2), media2.startDate?.year ?? null);
+      return hit ? { sourceId: hit.id, title: hit.title } : null;
+    },
+    chapters: (id) => chapters4(id),
+    pages: (id) => pages4(id),
+    ping: () => ping4(),
+    referer: WEEBCENTRAL_REFERER,
+    idPattern: /^[A-Z0-9]{10,40}$/
+  },
+  flame: {
+    find: async (media2) => {
+      const hit = await match3(titlesFor(media2));
+      return hit ? { sourceId: hit.id, title: hit.title } : null;
+    },
+    chapters: (id) => chapters2(id),
+    pages: (id) => pages2(id),
+    ping: () => ping2(),
     referer: FLAME_REFERER,
     idPattern: /^\d+\/[a-f0-9]+$/
   },
   mangapill: {
     find: async (media2) => {
-      const hit = await match4(titlesFor(media2), media2.startDate?.year ?? null);
+      const hit = await match5(titlesFor(media2), media2.startDate?.year ?? null);
       return hit ? { sourceId: hit.path, title: hit.title } : null;
     },
-    chapters: (path5) => chapters4(path5),
-    pages: (path5) => pages4(path5),
-    ping: () => search3("one piece"),
+    chapters: (path5) => chapters5(path5),
+    pages: (path5) => pages5(path5),
+    ping: () => search4("one piece"),
     referer: MANGAPILL_REFERER,
     // A path on mangapill.com; no "@", "//" or ".." that could point the request elsewhere.
     idPattern: /^\/chapters\/[\w-]+(?:\/[\w.-]+)*$/
   }
 };
+function getSource(provider) {
+  if (SOURCES[provider]) return SOURCES[provider];
+  const ext = extensionRegistry.getSource(provider);
+  if (ext) {
+    return {
+      find: (media2, adult) => ext.find(media2, adult),
+      chapters: (id) => ext.chapters(id),
+      pages: (id) => ext.pages(id),
+      ping: () => ext.ping(),
+      referer: ext.config.baseUrl,
+      idPattern: /^[\w\-\.\/:]+$/
+    };
+  }
+  return void 0;
+}
+function listExtensions() {
+  return extensionRegistry.getAllConfigs();
+}
+function toggleExtension(id, enabled) {
+  extensionRegistry.toggle(id, enabled);
+}
 function refererFor(provider) {
-  return SOURCES[provider]?.referer;
+  return getSource(provider)?.referer;
 }
 var health = /* @__PURE__ */ new Map();
 var HEALTH_TTL = 10 * MIN2;
 async function check(provider) {
   const started = Date.now();
+  const source = getSource(provider);
+  if (!source) {
+    return { provider, ok: false, ms: 0, checkedAt: Date.now(), error: "Unknown provider" };
+  }
   try {
-    await Promise.race([SOURCES[provider].ping(), new Promise((_, reject) => setTimeout(() => reject(new Error("No answer in 10 seconds")), 1e4))]);
+    await Promise.race([source.ping(), new Promise((_, reject) => setTimeout(() => reject(new Error("No answer in 10 seconds")), 1e4))]);
     return { provider, ok: true, ms: Date.now() - started, checkedAt: Date.now(), error: null };
   } catch (err) {
     return { provider, ok: false, ms: Date.now() - started, checkedAt: Date.now(), error: err instanceof Error ? err.message : String(err) };
@@ -5352,9 +6399,9 @@ async function providerHealth(force = false) {
     })
   );
 }
-function latestReadable(chapters5) {
+function latestReadable(chapters6) {
   let best = null;
-  for (const c of chapters5) {
+  for (const c of chapters6) {
     if (c.externalUrl) continue;
     const n = Number(c.number);
     if (Number.isFinite(n) && (best === null || n > best)) best = n;
@@ -5366,7 +6413,10 @@ async function loadProvider(provider, media2, adultAllowed, force) {
   if (!force && down && !down.ok && Date.now() - down.checkedAt < HEALTH_TTL) {
     return { summary: { provider, sourceId: null, title: null, chapterCount: 0, latest: null, error: `Unreachable right now (${down.error})` }, chapters: [] };
   }
-  const source = SOURCES[provider];
+  const source = getSource(provider);
+  if (!source) {
+    return { summary: { provider, sourceId: null, title: null, chapterCount: 0, latest: null, error: "Provider not found" }, chapters: [] };
+  }
   const variant = source.adultAware && adultAllowed ? ":adult" : "";
   return cache3.wrap(
     `chapters:${provider}:${media2.id}${variant}`,
@@ -5374,10 +6424,10 @@ async function loadProvider(provider, media2, adultAllowed, force) {
     async () => {
       try {
         const hit = await source.find(media2, adultAllowed);
-        const chapters5 = hit ? await source.chapters(hit.sourceId, adultAllowed) : [];
+        const chapters6 = hit ? await source.chapters(hit.sourceId, adultAllowed) : [];
         return {
-          summary: { provider, sourceId: hit?.sourceId ?? null, title: hit?.title ?? null, chapterCount: chapters5.length, latest: latestReadable(chapters5) },
-          chapters: chapters5
+          summary: { provider, sourceId: hit?.sourceId ?? null, title: hit?.title ?? null, chapterCount: chapters6.length, latest: latestReadable(chapters6) },
+          chapters: chapters6
         };
       } catch (err) {
         log6.warn(`${provider} failed for ${media2.id}:`, String(err));
@@ -5391,18 +6441,22 @@ async function loadProvider(provider, media2, adultAllowed, force) {
   );
 }
 var readable = (r) => r.chapters.filter((c) => !c.externalUrl).length;
-var RICHNESS = { mangadex: 3, flame: 2, weebcentral: 1, mangapill: 0 };
+var RICHNESS = { mangadex: 4, asura: 3, flame: 2, weebcentral: 1, mangapill: 0 };
 async function chapterList(mediaId, prefs, provider, force = false) {
   const media2 = await media(mediaId);
   void providerHealth().catch(() => {
   });
-  const results = await Promise.all(MANGA_PROVIDERS.map(({ id }) => loadProvider(id, media2, !prefs.hideAdult, force)));
   const preferred = provider ?? (prefs.mangaProvider !== "auto" ? prefs.mangaProvider : null);
+  const providersToCheck = MANGA_PROVIDERS.map((p) => p.id);
+  if (preferred && !providersToCheck.includes(preferred)) {
+    providersToCheck.push(preferred);
+  }
+  const results = await Promise.all(providersToCheck.map((id) => loadProvider(id, media2, !prefs.hideAdult, force)));
   let chosen = preferred ? results.find((r) => r.summary.provider === preferred && readable(r)) : void 0;
   if (!chosen) {
     chosen = [...results].sort((a, b) => {
       const diff = Number(b.summary.latest ?? -1) - Number(a.summary.latest ?? -1);
-      return Math.abs(diff) >= 1 ? diff : readable(b) - readable(a) || RICHNESS[b.summary.provider] - RICHNESS[a.summary.provider];
+      return Math.abs(diff) >= 1 ? diff : readable(b) - readable(a) || (RICHNESS[b.summary.provider] ?? 0) - (RICHNESS[a.summary.provider] ?? 0);
     })[0];
   }
   return {
@@ -5417,7 +6471,7 @@ var UnknownChapterError = class extends Error {
 function parseChapterId(id) {
   const [provider, ...rest] = id.split(":");
   const sourceId = rest.join(":");
-  const source = SOURCES[provider];
+  const source = getSource(provider);
   if (!source) throw new UnknownChapterError("That chapter comes from a source PlayzAnime no longer uses.");
   if (!source.idPattern.test(sourceId)) throw new UnknownChapterError("That chapter link is not one PlayzAnime recognises.");
   return { provider, sourceId };
@@ -5425,7 +6479,9 @@ function parseChapterId(id) {
 function chapterPages(chapter, prefs) {
   const { provider, sourceId } = parseChapterId(chapter.id);
   const saver = prefs.dataSaver;
-  return cache3.wrap(`pages:${chapter.id}:${saver}`, 5 * MIN2, () => SOURCES[provider].pages(sourceId, saver));
+  const source = getSource(provider);
+  if (!source) throw new UnknownChapterError("Source not available");
+  return cache3.wrap(`pages:${chapter.id}:${saver}`, 5 * MIN2, () => source.pages(sourceId, saver));
 }
 
 // src/prefs.ts
@@ -6135,8 +7191,8 @@ function proxiedStream(stream2, referer) {
     subtitles: stream2.subtitles.map((s) => ({ ...s, url: fileUrl(s.url, referer) }))
   };
 }
-function proxiedPages(pages5, provider) {
-  const allowed = pages5.filter((p) => !isHostBlocked(p.url));
+function proxiedPages(pages6, provider) {
+  const allowed = pages6.filter((p) => !isHostBlocked(p.url));
   const referer = refererFor(provider);
   return referer ? allowed.map((p) => ({ ...p, url: fileUrl(p.url, referer) })) : allowed;
 }
@@ -6176,6 +7232,11 @@ var HANDLERS = {
     return proxiedPages(await chapterPages(c, p), c.provider);
   },
   "manga:health": ([force]) => providerHealth(Boolean(force)),
+  "manga:extensions": () => listExtensions(),
+  "manga:toggleExtension": ([id, enabled]) => {
+    if (typeof id === "string") toggleExtension(id, Boolean(enabled));
+    return { ok: true };
+  },
   // streamRelay tells the page whether to use its own player or the source's embed.
   "app:info": () => ({ version: config.version, platform: "web", electron: "", chrome: "", userData: "", packaged: true, streamRelay: config.relay })
 };

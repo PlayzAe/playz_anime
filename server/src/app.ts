@@ -7,7 +7,7 @@ import { assertMediaAllowed, assertUrlAllowed, isHostBlocked, LegalBlock } from 
 import { config } from './config';
 import { listEpisodes } from './episodes';
 import { logger } from './log';
-import { chapterList, chapterPages, providerHealth, refererFor, UnknownChapterError } from './manga';
+import { chapterList, chapterPages, listExtensions, providerHealth, refererFor, toggleExtension, UnknownChapterError } from './manga';
 import { readPrefs, type Prefs } from './prefs';
 import { proxyFile, proxyHls, proxyPreflight } from './proxy/routes';
 import { fileUrl, hlsUrl } from './proxy/sign';
@@ -94,6 +94,11 @@ const HANDLERS: Record<string, Handler> = {
     return proxiedPages(await chapterPages(c, p), c.provider);
   },
   'manga:health': ([force]) => providerHealth(Boolean(force)),
+  'manga:extensions': () => listExtensions(),
+  'manga:toggleExtension': ([id, enabled]) => {
+    if (typeof id === 'string') toggleExtension(id, Boolean(enabled));
+    return { ok: true };
+  },
   // streamRelay tells the page whether to use its own player or the source's embed.
   'app:info': (): AppInfo & { streamRelay: boolean } => ({ version: config.version, platform: 'web', electron: '', chrome: '', userData: '', packaged: true, streamRelay: config.relay }),
 };
