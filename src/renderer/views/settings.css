@@ -2,13 +2,9 @@
  * Settings: a section index down the side and one column of sections. Each section is a
  * heading with its settings in a single card; bigger lists (sources) sit below the card.
  */
-.page.settings > .page-head,
+/* Starts at the same left edge as every other page; the cards stop at a readable width. */
 .settings-layout {
-  width: 100%;
-  max-width: calc(1040px + 2 * var(--gutter));
-  margin-inline: auto;
-}
-.settings-layout {
+  max-width: calc(1180px + 2 * var(--gutter));
   display: flex;
   align-items: flex-start;
   gap: 48px;
