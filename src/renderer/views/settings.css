@@ -1,22 +1,25 @@
 /*
- * Settings: a section index down the side, then one column of groups. Each group has its
- * title on the left and its rows on the right; narrow windows stack them.
+ * Settings: a section index down the side and one column of sections. Each section is a
+ * heading with its settings in a single card; bigger lists (sources) sit below the card.
  */
 .page.settings > .page-head,
 .settings-layout {
   width: 100%;
-  max-width: calc(1120px + 2 * var(--gutter));
+  max-width: calc(1040px + 2 * var(--gutter));
   margin-inline: auto;
 }
 .settings-layout {
   display: flex;
   align-items: flex-start;
-  gap: 40px;
-  padding: 8px var(--gutter) 0;
+  gap: 48px;
+  padding: 20px var(--gutter) 0;
 }
 .settings-body {
   flex: 1;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
 }
 
 /* ── Section index ── */
@@ -24,71 +27,81 @@
 .settings-index {
   position: sticky;
   top: calc(var(--titlebar) + 24px);
-  flex: 0 0 168px;
+  flex: 0 0 176px;
   display: flex;
   flex-direction: column;
-  gap: 1px;
-  padding-top: 30px;
-  border-left: 1px solid var(--line);
+  gap: 2px;
 }
 .settings-index a {
-  margin-left: -1px;
-  padding: 6px 0 6px 14px;
-  border-left: 2px solid transparent;
+  padding: 7px 12px;
+  border-radius: var(--radius-2);
   font-size: 13.5px;
   color: var(--paper-3);
   transition:
     color var(--fast) var(--ease),
-    border-color var(--fast) var(--ease);
+    background var(--fast) var(--ease);
 }
 .settings-index a:hover {
   color: var(--paper);
+  background: var(--ink-1);
 }
 .settings-index a.is-active {
   color: var(--paper);
   font-weight: 620;
-  border-left-color: var(--accent);
+  background: var(--accent-soft, var(--ink-2));
+  box-shadow: inset 2px 0 var(--accent);
 }
 
-/* ── Groups and rows ── */
+/* ── Sections ── */
 
 .settings-group {
   display: flex;
-  gap: 32px;
-  padding: 30px 0;
-  border-bottom: 1px solid var(--line);
-  scroll-margin-top: calc(var(--titlebar) + 8px);
-}
-.settings-group:last-child {
-  border-bottom: 0;
+  flex-direction: column;
+  gap: 12px;
+  scroll-margin-top: calc(var(--titlebar) + 16px);
 }
 .settings-group-head {
-  flex: 0 0 170px;
-  padding-top: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 0 4px;
 }
 .settings-group-title {
-  font-size: 15px;
+  font-size: 17px;
   font-weight: 700;
+  letter-spacing: -0.005em;
   color: var(--paper);
 }
 .settings-group-note {
-  margin-top: 6px;
-  font-size: 12.5px;
+  font-size: 13px;
   line-height: 1.5;
   color: var(--paper-3);
 }
-.settings-rows {
-  flex: 1;
-  min-width: 0;
+.settings-card {
   display: flex;
   flex-direction: column;
-  gap: 22px;
+  border-radius: var(--radius-3);
+  border: 1px solid var(--line);
+  background: var(--ink-1);
+  overflow: hidden;
 }
+.settings-card > * + * {
+  border-top: 1px solid var(--line);
+}
+.settings-after {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ── Rows ── */
+
 .settings-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 24px;
+  padding: 16px 20px;
 }
 .settings-row-text {
   min-width: 0;
@@ -99,12 +112,13 @@
 .settings-row-title {
   font-size: 14.5px;
   font-weight: 600;
+  color: var(--paper);
 }
 .settings-row-note {
   font-size: 13px;
   line-height: 1.5;
   color: var(--paper-3);
-  max-width: 500px;
+  max-width: 520px;
   overflow-wrap: anywhere;
 }
 .settings-row-control {
@@ -125,24 +139,26 @@
 .swatches {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 6px;
 }
 .swatch {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 5px;
-  width: 64px;
+  width: 62px;
   padding: 8px 4px 6px;
   border-radius: var(--radius-2);
   border: 1px solid transparent;
   color: var(--paper-3);
   transition:
     border-color var(--fast) var(--ease),
-    color var(--fast) var(--ease);
+    color var(--fast) var(--ease),
+    background var(--fast) var(--ease);
 }
 .swatch:hover {
   color: var(--paper);
+  background: var(--ink-2);
 }
 .swatch.is-on {
   border-color: var(--line-2);
@@ -150,9 +166,13 @@
   color: var(--paper);
 }
 .swatch-color {
-  width: 30px;
-  height: 30px;
-  border-radius: 6px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  transition: transform var(--fast) var(--ease);
+}
+.swatch:hover .swatch-color {
+  transform: scale(1.08);
 }
 .swatch.is-on .swatch-color {
   box-shadow:
@@ -183,7 +203,7 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 16px;
-  padding: 16px 18px 14px;
+  padding: 16px 20px 14px;
 }
 .panel-title {
   display: flex;
@@ -228,7 +248,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 11px 18px;
+  padding: 11px 20px;
   font-size: 13.5px;
 }
 .source + .source {
@@ -328,7 +348,7 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 10px;
-  padding: 0 18px 14px;
+  padding: 0 20px 14px;
 }
 .ext-search {
   flex: 1 1 220px;
@@ -373,7 +393,7 @@
   align-items: center;
   gap: 14px;
   min-width: 0;
-  padding: 11px 18px;
+  padding: 11px 20px;
   border-bottom: 1px solid var(--line);
   transition: opacity var(--fast) var(--ease);
 }
@@ -418,7 +438,7 @@
   text-overflow: ellipsis;
 }
 .ext-empty {
-  padding: 18px;
+  padding: 18px 20px;
   border-top: 1px solid var(--line);
   font-size: 13.5px;
   color: var(--paper-3);
@@ -451,7 +471,8 @@
 .shortcuts {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px 28px;
+  gap: 12px 32px;
+  padding: 18px 20px;
 }
 .shortcut {
   flex: 1 1 280px;
@@ -469,25 +490,14 @@
   text-align: right;
 }
 
-/* ── Help ── */
+/* ── Help: link rows inside the section card ── */
 
-.link-list {
-  display: flex;
-  flex-direction: column;
-  border-radius: var(--radius-3);
-  border: 1px solid var(--line);
-  background: var(--ink-1);
-  overflow: hidden;
-}
 .link-row {
   display: flex;
   align-items: center;
   gap: 14px;
-  padding: 13px 16px;
+  padding: 14px 20px;
   transition: background var(--fast) var(--ease);
-}
-.link-row + .link-row {
-  border-top: 1px solid var(--line);
 }
 .link-row:hover {
   background: var(--ink-2);
@@ -544,6 +554,7 @@
   display: flex;
   gap: 18px;
   align-items: flex-start;
+  padding: 20px;
 }
 .about-text {
   min-width: 0;
@@ -554,7 +565,7 @@
 }
 .about-credits {
   margin-top: 10px;
-  max-width: 540px;
+  max-width: 560px;
   font-size: 13px;
   line-height: 1.55;
   color: var(--paper-2);
@@ -595,20 +606,24 @@
 }
 
 @media (max-width: 760px) {
-  .settings-group {
-    flex-direction: column;
-    gap: 14px;
+  .settings-layout {
+    padding-top: 12px;
   }
-  .settings-group-head {
-    flex: none;
-    padding-top: 0;
+  .settings-body {
+    gap: 32px;
   }
   .settings-row {
     flex-wrap: wrap;
     gap: 10px 16px;
+    padding: 14px 16px;
   }
   .settings-row-text {
     flex: 1 1 220px;
+  }
+  .source,
+  .ext,
+  .link-row {
+    padding-inline: 16px;
   }
   .source-text {
     flex-direction: column;
@@ -619,5 +634,6 @@
   }
   .panel-head {
     flex-wrap: wrap;
+    padding-inline: 16px;
   }
 }

@@ -165,7 +165,17 @@ export function Settings() {
             </Row>
           </Group>
 
-          <Group id="sources" title="Sources" note="Where chapters come from. Titles and artwork always come from AniList.">
+          <Group
+            id="sources"
+            title="Sources"
+            note="Where chapters come from. Titles and artwork always come from AniList."
+            after={
+              <>
+                <SourceHealth web={web === true} />
+                <ExtensionsManager web={web === true} />
+              </>
+            }
+          >
             <Row title="Manga source" note="Auto checks every source for each title and reads from the one that’s furthest along, skipping any that are down.">
               <Select
                 label="Manga source"
@@ -175,8 +185,6 @@ export function Settings() {
                 options={[{ value: 'auto', label: 'Auto (recommended)' }, ...MANGA_PROVIDERS.map((p) => ({ value: p.id, label: p.name }))]}
               />
             </Row>
-            <SourceHealth web={web === true} />
-            <ExtensionsManager web={web === true} />
           </Group>
 
           <Group id="downloads" title="Downloads">
@@ -289,13 +297,11 @@ export function Settings() {
           </Group>
 
           <Group id="help" title="Help">
-            <div className="link-list">
-              <LinkRow icon="info" title="Guides and FAQ" note="How watching, reading, sources and downloads work." url={DOCS_URL} />
-              <LinkRow icon="bolt" title="What’s new" note="Release notes for every version." url={CHANGELOG_URL} />
-              {web && <LinkRow icon="downloads" title="PlayzAnime for Windows" note="Downloads, offline mode and every source, free." url={RELEASES_URL} />}
-              <LinkRow icon="shield" title="Terms, privacy and copyright" note="What PlayzAnime is, what it keeps, and how to send a DMCA notice." url={POLICIES_URL} />
-              <LinkRow icon="layers" title="Source code" note="The Windows app, the web app and the website, on GitHub." url={GITHUB_URL} />
-            </div>
+            <LinkRow icon="info" title="Guides and FAQ" note="How watching, reading, sources and downloads work." url={DOCS_URL} />
+            <LinkRow icon="bolt" title="What’s new" note="Release notes for every version." url={CHANGELOG_URL} />
+            {web && <LinkRow icon="downloads" title="PlayzAnime for Windows" note="Downloads, offline mode and every source, free." url={RELEASES_URL} />}
+            <LinkRow icon="shield" title="Terms, privacy and copyright" note="What PlayzAnime is, what it keeps, and how to send a DMCA notice." url={POLICIES_URL} />
+            <LinkRow icon="layers" title="Source code" note="The Windows app, the web app and the website, on GitHub." url={GITHUB_URL} />
           </Group>
 
           <Group id="about" title="About">
@@ -628,7 +634,8 @@ function LinkRow({ icon, title, note, url }: { icon: IconName; title: string; no
   );
 }
 
-function Group({ id, title, note, children }: { id: string; title: string; note?: string; children: ReactNode }) {
+/** A heading, its settings in one card, and anything bigger (like the source lists) below it. */
+function Group({ id, title, note, children, after }: { id: string; title: string; note?: string; children: ReactNode; after?: ReactNode }) {
   return (
     <section id={id} className="settings-group" aria-labelledby={`${id}-title`}>
       <div className="settings-group-head">
@@ -637,7 +644,8 @@ function Group({ id, title, note, children }: { id: string; title: string; note?
         </h2>
         {note && <p className="settings-group-note">{note}</p>}
       </div>
-      <div className="settings-rows">{children}</div>
+      <div className="settings-card">{children}</div>
+      {after && <div className="settings-after">{after}</div>}
     </section>
   );
 }
