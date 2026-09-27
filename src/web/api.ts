@@ -1,5 +1,6 @@
 import type { AppCommand, PlayzAnimeApi } from '../shared/api';
 import type {
+  MangaExtensionInfo,
   AiringItem,
   AppInfo,
   BrowseFilters,

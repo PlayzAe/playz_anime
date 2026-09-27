@@ -4,10 +4,53 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="color-scheme" content="dark" />
-    <title>PlayzAnime</title>
+    <meta name="theme-color" content="#0c0b0a" />
+    <title>PlayzAnime: watch anime and read manga free, in your browser</title>
+    <meta name="description" content="PlayzAnime on the web: stream anime with an ad-free player and read manga, manhwa and manhua from many sources. Free, no account. Get the Windows app to download episodes and chapters." />
+    <link rel="icon" href="%BASE%icon.svg" type="image/svg+xml" />
+    <link rel="icon" href="%BASE%icon.png" type="image/png" sizes="512x512" />
+    <link rel="apple-touch-icon" href="%BASE%icon.png" />
+    <link rel="sitemap" type="application/xml" href="%SITE_URL%sitemap.xml" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="PlayzAnime" />
+    <meta property="og:title" content="PlayzAnime: watch anime and read manga free" />
+    <meta property="og:description" content="An ad-free anime player and a manga, manhwa and manhua reader in your browser. No account. Downloads in the free Windows app." />
+    <meta property="og:url" content="%SITE_URL%" />
+    <meta property="og:image" content="%OG_IMAGE%" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="PlayzAnime: watch anime and read manga free" />
+    <meta name="twitter:description" content="An ad-free anime player and a manga, manhwa and manhua reader in your browser. Downloads in the free Windows app." />
+    <meta name="twitter:image" content="%OG_IMAGE%" />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "PlayzAnime",
+        "url": "%SITE_URL%",
+        "description": "Stream anime with an ad-free player and read manga, manhwa and manhua in the browser. Free, no account.",
+        "applicationCategory": "MultimediaApplication",
+        "operatingSystem": "Any (web browser)",
+        "browserRequirements": "Requires JavaScript",
+        "isAccessibleForFree": true,
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+        "sameAs": ["https://github.com/PlayzAe/playz_anime", "https://github.com/PlayzAe/playz_anime_desktopapp", "https://playzae.github.io/playz_anime_landingpage/"]
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
+    <noscript>
+      <main style="max-width:640px;margin:0 auto;padding:48px 20px;font-family:system-ui,sans-serif;line-height:1.6;color:#efe9e1;background:#0c0b0a">
+        <h1 style="font-size:32px;line-height:1.1">PlayzAnime</h1>
+        <p>Watch anime with an ad-free player and read manga, manhwa and manhua, free and with no account. The web app needs JavaScript turned on.</p>
+        <p>Want to keep episodes and chapters offline? <a style="color:#f0532c" href="https://github.com/PlayzAe/playz_anime_desktopapp/releases/latest">Download PlayzAnime for Windows</a> from GitHub.</p>
+        <p><a style="color:#f0532c" href="https://playzae.github.io/playz_anime_landingpage/docs/">Guides and FAQ</a> · <a style="color:#f0532c" href="https://playzae.github.io/playz_anime_landingpage/docs/changelog/">Changelog</a> · <a style="color:#f0532c" href="https://playzae.github.io/playz_anime_landingpage/docs/policies/">Terms, privacy and DMCA</a> · <a style="color:#f0532c" href="https://github.com/PlayzAe">Source code</a></p>
+      </main>
+    </noscript>
     <script type="module" src="./main.tsx"></script>
   </body>
 </html>

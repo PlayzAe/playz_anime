@@ -1,4 +1,5 @@
 import type {
+  MangaExtensionInfo,
   AiringItem,
   AppInfo,
   BrowseFilters,

@@ -4,6 +4,7 @@ import { Button } from './Controls';
 import { Icon, type IconName } from './Icon';
 import { Logo } from './Logo';
 import { Modal } from './Modal';
+import { RELEASES_URL } from '../lib/links';
 import './getapp.css';
 
 /*
@@ -11,7 +12,7 @@ import './getapp.css';
  * The Downloads page and every Download button on the web lead here.
  */
 
-export const APP_URL = 'https://github.com/PlayzAe';
+export const APP_URL = RELEASES_URL;
 
 const FEATURES: { icon: IconName; title: string; body: string }[] = [
   { icon: 'downloads', title: 'Episodes as MP4', body: 'Subtitles packed in. A download picks up where it stopped and waits out busy hosts.' },
