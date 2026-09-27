@@ -7,6 +7,9 @@
 .app.is-immersive {
   grid-template-columns: minmax(0, 1fr);
 }
+.app.is-immersive .main {
+  overflow: hidden;
+}
 
 .main {
   position: relative;

@@ -11,6 +11,7 @@
     "build:pages": "vite build && node scripts/spa-fallback.mjs",
     "preview": "vite preview",
     "lint": "oxlint src/",
+    "test:apis": "npm --prefix server run test",
     "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.node.json --noEmit"
   },
   "author": {

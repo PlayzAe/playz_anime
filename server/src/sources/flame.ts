@@ -8,8 +8,9 @@ import { decodeEntities } from './anikoto';
  * chapter lists and page images are embedded in the series and chapter pages.
  */
 
-const BASE = 'https://flamecomics.xyz';
-export const FLAME_REFERER = `${BASE}/`;
+const DOMAINS = ['https://flamecomics.xyz', 'https://flamecomics.com'];
+let activeBase = DOMAINS[0];
+export const FLAME_REFERER = `${activeBase}/`;
 
 interface FlameSeries {
   id: number;
@@ -25,9 +26,25 @@ let catalogue: { at: number; list: FlameSeries[] } | null = null;
 
 async function list(): Promise<FlameSeries[]> {
   if (catalogue && Date.now() - catalogue.at < 6 * 3_600_000) return catalogue.list;
-  const data = await retry(() => getJson<FlameSeries[]>(`${BASE}/api/series`, { timeoutMs: 15000, headers: { Referer: FLAME_REFERER } }));
-  catalogue = { at: Date.now(), list: Array.isArray(data) ? data : [] };
-  return catalogue.list;
+  let lastErr: unknown;
+  for (const domain of DOMAINS) {
+    try {
+      const data = await retry(() =>
+        getJson<FlameSeries[]>(`${domain}/api/series`, {
+          timeoutMs: 15000,
+          headers: { Referer: `${domain}/`, Accept: 'application/json, text/plain, */*' },
+        }),
+      );
+      if (Array.isArray(data) && data.length) {
+        activeBase = domain;
+        catalogue = { at: Date.now(), list: data };
+        return catalogue.list;
+      }
+    } catch (err) {
+      lastErr = err;
+    }
+  }
+  throw lastErr ?? new Error('Flame Comics unreachable');
 }
 
 export async function match(titles: string[]): Promise<{ id: string; title: string } | null> {
@@ -37,7 +54,7 @@ export async function match(titles: string[]): Promise<{ id: string; title: stri
 }
 
 export async function chapters(seriesId: string): Promise<Chapter[]> {
-  const html = await retry(() => getText(`${BASE}/series/${seriesId}`, { timeoutMs: 20000, headers: { Referer: FLAME_REFERER } }));
+  const html = await retry(() => getText(`${activeBase}/series/${seriesId}`, { timeoutMs: 20000, headers: { Referer: `${activeBase}/` } }));
   const seen = new Set<string>();
   const list: Chapter[] = [];
   for (const chunk of html.split('"chapter_id":').slice(1)) {
@@ -67,7 +84,7 @@ export async function chapters(seriesId: string): Promise<Chapter[]> {
 /** Page image URLs; the CDN wants the site as Referer, so the RPC layer proxies them. */
 export async function pages(sourceId: string): Promise<ChapterPage[]> {
   const [seriesId, token] = sourceId.split('/');
-  const html = await retry(() => getText(`${BASE}/series/${seriesId}/${token}`, { timeoutMs: 15000, headers: { Referer: FLAME_REFERER } }));
+  const html = await retry(() => getText(`${activeBase}/series/${seriesId}/${token}`, { timeoutMs: 15000, headers: { Referer: `${activeBase}/` } }));
   // Only this chapter's folder: the site mixes in its own "read on Flame" promo panels.
   const re = new RegExp(`https://cdn\\.flamecomics\\.xyz/uploads/images/series/${seriesId}/${token}/[^"\\\\\\s?]+(?:\\?\\d+)?`, 'g');
   const urls = [...new Set(html.match(re) ?? [])];

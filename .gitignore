@@ -24,9 +24,19 @@ server/data/
 .idea/
 .vs/
 
-# Scratch & temporary scripts
+# Scratch, temporary files & test outputs
 *.py
 *.ps1
+*.tmp
+*.temp
 scripts/temp*
 scripts/fix*
 scripts/update*
+scripts/*.html
+test-results/
+coverage/
+
+# OS metadata
+Thumbs.db
+Desktop.ini
+.DS_Store

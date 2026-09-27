@@ -106,3 +106,5 @@ export async function pages(chapterPath: string): Promise<ChapterPage[]> {
   }));
   return result.filter((p) => /^https?:\/\//.test(p.url));
 }
+
+export const ping = () => search('naruto');

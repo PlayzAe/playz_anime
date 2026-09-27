@@ -1,7 +1,20 @@
 // A desktop Chrome user agent. Several providers reject requests that carry
 // Node's default UA or no UA at all.
 export const CHROME_UA =
-  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36';
+  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36';
+
+export const BROWSER_HEADERS: Record<string, string> = {
+  'User-Agent': CHROME_UA,
+  'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+  'Accept-Language': 'en-US,en;q=0.9',
+  'Sec-Ch-Ua': '"Not(A:Brand";v="99", "Google Chrome";v="133", "Chromium";v="133"',
+  'Sec-Ch-Ua-Mobile': '?0',
+  'Sec-Ch-Ua-Platform': '"Windows"',
+  'Sec-Fetch-Dest': 'document',
+  'Sec-Fetch-Mode': 'navigate',
+  'Sec-Fetch-Site': 'cross-site',
+  'Upgrade-Insecure-Requests': '1',
+};
 
 export class HttpError extends Error {
   constructor(
@@ -32,7 +45,7 @@ export async function request(url: string, opts: RequestOptions = {}): Promise<R
   const res = await fetch(url, {
     method: opts.method ?? 'GET',
     body: opts.body,
-    headers: { 'User-Agent': CHROME_UA, ...opts.headers },
+    headers: { ...BROWSER_HEADERS, ...opts.headers },
     signal: withTimeout(opts.timeoutMs ?? 15000, opts.signal),
     redirect: 'follow',
   });

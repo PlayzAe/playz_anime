@@ -25,15 +25,24 @@ const SLIDE_MS = 5000;
  */
 export function Hero({ slides, showNative }: { slides: HeroSlide[]; showNative: boolean }) {
   const [index, setIndex] = useState(0);
+  const [paused, setPaused] = useState(false);
   const pausedRef = useRef(false);
   const slide = slides[Math.min(index, slides.length - 1)];
+
+  const setHoverPaused = (p: boolean) => {
+    pausedRef.current = p;
+    setPaused(p);
+  };
 
   useEffect(() => {
     if (index >= slides.length) setIndex(0);
   }, [slides.length, index]);
 
   useEffect(() => {
-    const onVisibility = () => { pausedRef.current = document.hidden; };
+    const onVisibility = () => {
+      pausedRef.current = document.hidden;
+      setPaused(document.hidden);
+    };
     document.addEventListener('visibilitychange', onVisibility);
     return () => document.removeEventListener('visibilitychange', onVisibility);
   }, []);
@@ -56,6 +65,8 @@ export function Hero({ slides, showNative }: { slides: HeroSlide[]; showNative: 
     <section
       className={`hero ${posterMode ? 'is-poster' : ''}`}
       aria-roledescription="carousel"
+      onMouseEnter={() => setHoverPaused(true)}
+      onMouseLeave={() => setHoverPaused(false)}
     >
       <AnimatePresence initial={false}>
         <motion.div
@@ -98,7 +109,7 @@ export function Hero({ slides, showNative }: { slides: HeroSlide[]; showNative: 
       </AnimatePresence>
 
       {slides.length > 1 && (
-        <div className="hero-pager" role="tablist" aria-label="Spotlight">
+        <div className={`hero-pager ${paused ? 'is-paused' : ''}`} role="tablist" aria-label="Spotlight">
           {slides.map((s, i) => (
             <button
               key={s.key}

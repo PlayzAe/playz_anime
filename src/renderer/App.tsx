@@ -178,18 +178,22 @@ export function App() {
       {!immersive && <TitleBar route={route} solid={scrolled || ALWAYS_SOLID.includes(route.name)} onSearch={() => setPalette(true)} />}
       <MobileNotice />
       <main className="main" ref={mainRef} onScroll={onScroll}>
-        <AnimatePresence mode="wait" initial={false}>
-          <motion.div
-            key={viewKey}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.22, ease: [0.2, 0.8, 0.2, 1] }}
-            style={{ minHeight: '100%' }}
-          >
-            <View route={route} />
-          </motion.div>
-        </AnimatePresence>
+        {immersive ? (
+          <View key={viewKey} route={route} />
+        ) : (
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div
+              key={viewKey}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0, transitionEnd: { transform: 'none' } }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2, ease: [0.2, 0.8, 0.2, 1] }}
+              style={{ minHeight: '100%' }}
+            >
+              <View route={route} />
+            </motion.div>
+          </AnimatePresence>
+        )}
       </main>
       <CommandPalette open={palette} onClose={() => setPalette(false)} />
       <ProfileDrop />

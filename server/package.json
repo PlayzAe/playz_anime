@@ -12,6 +12,7 @@
     "build": "node scripts/build.mjs",
     "start": "node dist/index.mjs",
     "build:vercel": "node scripts/build-vercel.mjs",
+    "test": "node scripts/test.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "license": "UNLICENSED",
