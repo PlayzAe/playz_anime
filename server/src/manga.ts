@@ -257,12 +257,21 @@ export class UnknownChapterError extends Error {}
 
 /** Splits "provider:sourceId" and checks both halves; throws a readable error for anything else. */
 export function parseChapterId(id: string): { provider: MangaProviderId; sourceId: string } {
-  const [provider, ...rest] = id.split(':');
-  const sourceId = rest.join(':');
-  const source = getSource(provider as MangaProviderId);
+  let provider: MangaProviderId;
+  let sourceId: string;
+  if (id.startsWith('ext:')) {
+    const parts = id.slice(4).split(':');
+    provider = `ext:${parts[0]}` as MangaProviderId;
+    sourceId = parts.slice(1).join(':');
+  } else {
+    const [p, ...rest] = id.split(':');
+    provider = p as MangaProviderId;
+    sourceId = rest.join(':');
+  }
+  const source = getSource(provider);
   if (!source) throw new UnknownChapterError('That chapter comes from a source PlayzAnime no longer uses.');
   if (!source.idPattern.test(sourceId)) throw new UnknownChapterError('That chapter link is not one PlayzAnime recognises.');
-  return { provider: provider as MangaProviderId, sourceId };
+  return { provider, sourceId };
 }
 
 export function chapterPages(chapter: Chapter, prefs: Prefs): Promise<ChapterPage[]> {

@@ -8,6 +8,7 @@ import { ProfileDrop } from './components/ProfileDrop';
 import { Rail, TitleBar, Toasts } from './components/Shell';
 import { Splash } from './components/Splash';
 import { EmptyState } from './components/States';
+import { UpdateNotifier } from './components/UpdateNotifier';
 import { navigate, useRoute, type Route, type RouteName } from './lib/router';
 import { useApp } from './lib/store';
 import { useIsPhone } from './lib/viewport';
@@ -200,6 +201,7 @@ export function App() {
       {!splash && setupDone === false && <FirstRun irisToRail={!phone} onDone={() => setSetupDone(true)} />}
       {/* On wide screens the opening closes onto the rail's seal; on phones the rail is a tab bar, so it fades. */}
       {splash && <Splash irisToRail={setupDone !== false && !phone} onDone={() => setSplash(false)} />}
+      <UpdateNotifier ready={!splash} />
       <Toasts />
     </div>
   );

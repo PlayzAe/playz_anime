@@ -54,9 +54,12 @@ PlayzAnime is a **streaming platform** and **media client** with a **web app** a
 ## Features
 
 - **Native Custom Player:** Powered by `hls.js` with adaptive bitrate streaming (1080p, 720p, 480p, 360p), full keyboard shortcuts, smooth volume controls, and picture-in-picture.
+- **In-Player Subtitle Customizer:** Real-time subtitle styling directly in the player. Customize font size (small to huge), colors (classic white, anime yellow, cyan, emerald), background styles (box, drop-shadow, outline), font families, and vertical position.
 - **Auto Skip Intro & Outro:** Automatically identifies episode intro/outro marks and skips them seamlessly.
-- **Dual-Audio Support:** Instant toggle between Sub (Japanese audio with subtitles) and Dub (English audio).
-- **Manga & Manhwa Reader:** Read chapters from MangaDex, WeebCentral, Flame Scans, and MangaPill with unified vertical (Webtoon), Right-to-Left, and Left-to-Right reader modes.
+- **Dual-Audio Support & Download Subtitles:** Instant toggle between Sub (Japanese audio with subtitles) and Dub (English audio). When downloading, choose any subtitle track to embed into the MP4—even with English Dub.
+- **55+ Multi-Source Manga & Manhwa Engine:** Tachiyomi/Mihon-inspired architecture featuring 55+ scanlation teams and aggregators (Asura Scans, Reaper Scans, Bato.to, MangaReader, MangaFreak, MangaSee, MangaDex, etc.) with smart chapter auto-picking and in-reader source switcher.
+- **Zero-Captcha Anti-Bot & DDoS Shield:** Sliding-window rate limiter and instant exploit probe dropping to maintain zero latency and prevent bot crashes on low-tier hosting (e.g. Render Free Tier).
+- **Auto-Update Notifier:** Checks official GitHub releases on boot (after animations finish) using zero API keys and alerts users to new features and downloads.
 - **AniList Integration:** Real-time client-side catalog browsing, seasonal charts, trending releases, airing schedules, and search with zero server bottlenecks.
 - **Embed Fallback:** Switch between the native player and third-party embed players on the fly with built-in ad and popup filtering.
 - **Data Saver Mode:** Compresses manga pages for low-bandwidth connections.

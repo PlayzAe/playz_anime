@@ -11,6 +11,7 @@ import { chapterList, chapterPages, listExtensions, providerHealth, refererFor, 
 import { readPrefs, type Prefs } from './prefs';
 import { proxyFile, proxyHls, proxyPreflight } from './proxy/routes';
 import { fileUrl, hlsUrl } from './proxy/sign';
+import { checkSecurity } from './security';
 import { isKnownEmbed } from './stream/embeds';
 import { resolveStream } from './stream/resolve';
 
@@ -207,6 +208,7 @@ function proxyRoute(pathname: string): 'hls' | 'file' | null {
 export function handle(req: IncomingMessage, res: ServerResponse) {
   const url = new URL(req.url ?? '/', 'http://localhost');
   const { pathname } = url;
+  if (checkSecurity(req, res, pathname)) return;
   return (async () => {
     const route = proxyRoute(pathname);
     if (route) {

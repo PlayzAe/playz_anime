@@ -268,6 +268,13 @@ describe('PlayzAnime APIs Unit Test Suite', () => {
       assert.equal(body.error, 'Use POST.');
     });
 
+    test('Security: blocks exploit scanner probes with 403', async () => {
+      const res = await fetch(`${baseUrl}/.env`);
+      assert.equal(res.status, 403);
+      const data = await res.json();
+      assert.equal(data.error, 'Blocked scanner probe.');
+    });
+
     test('Proxy: generates and verifies signed URLs', () => {
       const sampleUrl = 'https://img.asurascans.com/media/chapter1/01.webp';
       const referer = 'https://asurascans.com/';
