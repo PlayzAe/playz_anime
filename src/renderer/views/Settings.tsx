@@ -377,17 +377,35 @@ function SourceHealth() {
       {MANGA_PROVIDERS.map((p) => {
         const h = byId.get(p.id);
         const state = !h ? 'checking' : h.ok ? (h.ms > 4000 ? 'slow' : 'up') : 'down';
+        const isCloudflare = h?.error?.includes('403');
+        const stateLabel =
+          state === 'checking'
+            ? 'Checking…'
+            : state === 'down'
+              ? isCloudflare
+                ? 'Blocked (Cloudflare 403)'
+                : 'Unreachable'
+              : `${(h!.ms / 1000).toFixed(1)} s`;
+        const stateTitle = isCloudflare
+          ? 'Cloudflare WAF blocked this datacenter hosting IP (Render/AWS). Keep Manga source on Auto for automatic fallback, or use the Desktop App for direct access.'
+          : (h?.error ?? undefined);
+
         return (
           <div key={p.id} className={`source is-${state}`}>
             <span className="source-dot" aria-hidden="true" />
             <span className="source-name">{p.name}</span>
             <span className="source-note">{p.note}</span>
-            <span className="source-state num" title={h?.error ?? undefined}>
-              {state === 'checking' ? 'Checking…' : state === 'down' ? 'Unreachable' : `${(h!.ms / 1000).toFixed(1)} s`}
+            <span className="source-state num" title={stateTitle}>
+              {stateLabel}
             </span>
           </div>
         );
       })}
+      <div className="sources-cloud-notice">
+        <span className="sources-cloud-notice-title">Web Hosting & Source Availability:</span>
+        Cloudflare blocks datacenter hosting IPs (e.g. Render, AWS) for certain sources (WeebCentral, Flame) with HTTP 403.
+        In <strong>Auto</strong> mode, PlayzAnime automatically skips blocked sources and serves all manhwa and manga through healthy providers (Asura Scans, MangaDex, MangaPill). For 100% direct access to all 5 sources without cloud blocks, use the <strong>PlayzAnime Desktop App</strong>.
+      </div>
       <button type="button" className="sources-recheck" onClick={() => setForce((n) => n + 1)}>
         <Icon name="refresh" size={14} /> Check again
       </button>
