@@ -190,6 +190,22 @@ describe('PlayzAnime APIs Unit Test Suite', () => {
       assert.ok(list.chapters.length > 0, 'chapters must not be empty');
       assert.ok(Array.isArray(list.providers), 'providers list must be present');
     });
+
+    test('chapterList switches source dynamically when provider is explicitly selected', async () => {
+      const prefs = { titleLanguage: 'romaji', preferDub: false, dataSaver: false, readerMode: 'vertical' as const, readerDirection: 'ltr' as const, readerFit: 'width' as const, hideAdult: true };
+      // Test switching to MangaDex on Solo Leveling
+      const dexList = await chapterList(105398, prefs, 'mangadex', false);
+      assert.ok(dexList, 'chapterList should return list for MangaDex');
+      assert.equal(dexList.provider, 'mangadex', 'Provider must switch to mangadex');
+      assert.ok(dexList.chapters.length > 0, 'MangaDex chapters must be present');
+      assert.ok(dexList.providers.length >= 2, 'Multiple providers should be discovered');
+
+      // Test switching to MangaPill on One Piece (media 21)
+      const pillList = await chapterList(21, prefs, 'mangapill', false);
+      assert.ok(pillList, 'chapterList should return list for MangaPill');
+      assert.equal(pillList.provider, 'mangapill', 'Provider must switch to mangapill');
+      assert.ok(pillList.chapters.length > 0, 'MangaPill chapters must not be empty');
+    });
   });
 
   // ── 4. HTTP RPC & Proxy Endpoints ─────────────────────────────────────────
