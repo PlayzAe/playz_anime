@@ -8,7 +8,7 @@ import { RELEASES_URL } from '../lib/links';
 import './getapp.css';
 
 /*
- * Downloads and offline mode need a real disk, so they live in the Windows app.
+ * Downloads and offline mode need a real disk, so they live in the Windows and Android apps.
  * The Downloads page and every Download button on the web lead here.
  */
 
@@ -51,20 +51,20 @@ export function GetAppPage() {
           <Logo size={88} />
         </div>
         <div className="getapp-copy">
-          <div className="getapp-eyebrow">PlayzAnime for Windows</div>
-          <h1 className="getapp-title display">Downloads live in the Windows app</h1>
+          <div className="getapp-eyebrow">PlayzAnime for Windows and Android</div>
+          <h1 className="getapp-title display">Downloads live in the apps</h1>
           <p className="getapp-sub">
-            Here in the browser you stream and read. The Windows app does the same, and also saves episodes and chapters to your PC so they play with no internet at all.
+            Here in the browser you stream and read. My Windows and Android apps do the same, and also save episodes and chapters to your PC or phone so they play with no internet at all.
           </p>
           <div className="getapp-actions">
             <Button variant="primary" size="lg" icon="downloads" onClick={openAppPage}>
-              Get PlayzAnime for Windows
+              Get PlayzAnime for Windows or Android
             </Button>
             <Button variant="ghost" size="lg" onClick={() => navigate('/')}>
               Keep watching here
             </Button>
           </div>
-          <p className="getapp-fine">Free, with no ads. Windows 10 and 11.</p>
+          <p className="getapp-fine">Free, with no ads. Windows 10 and 11, Android 7 and newer.</p>
         </div>
       </section>
       <Features />
@@ -78,7 +78,7 @@ export function GetAppDialog({ open, onClose, what }: { open: boolean; onClose: 
     <Modal
       open={open}
       onClose={onClose}
-      title="Download with the Windows app"
+      title="Download with the app"
       width={540}
       footer={
         <>
@@ -93,7 +93,7 @@ export function GetAppDialog({ open, onClose, what }: { open: boolean; onClose: 
               onClose();
             }}
           >
-            Get the Windows app
+            Get the app
           </Button>
         </>
       }
@@ -101,7 +101,7 @@ export function GetAppDialog({ open, onClose, what }: { open: boolean; onClose: 
       <div className="getapp-dialog">
         <Logo size={44} />
         <p>
-          Saving {what} for offline viewing needs PlayzAnime for Windows. Your browser can stream it right now; the app can keep it.
+          Saving {what} for offline viewing needs PlayzAnime for Windows or Android. Your browser can stream it right now; the app can keep it.
         </p>
       </div>
       <Features compact />

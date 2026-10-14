@@ -25,7 +25,7 @@
     <img src="https://img.shields.io/badge/Web%20App-Online-brightgreen?style=flat-square" alt="Status" />
   </a>
   <a href="https://github.com/PlayzAe/playz_anime">
-    <img src="https://img.shields.io/badge/Platform-Web%20%7C%20Windows-blue?style=flat-square" alt="Platforms" />
+    <img src="https://img.shields.io/badge/Platform-Web%20%7C%20Windows%20%7C%20Android-blue?style=flat-square" alt="Platforms" />
   </a>
   <a href="https://github.com/PlayzAe/playz_anime/blob/main/docs/LEGAL.md">
     <img src="https://img.shields.io/badge/License-Proprietary-red?style=flat-square" alt="License" />
@@ -47,7 +47,7 @@ PlayzAnime is a **streaming platform** and **media client** with a **web app** a
 
 > [!NOTE]
 > **Mobile & Android Display Notice:**
-> The web streaming platform is designed for **laptops, TVs, and desktop monitors**. Android and phone browser viewing is currently unoptimized and may appear scattered. A dedicated native **Android app is coming soon**!
+> The web streaming platform is designed for **laptops, TVs, and desktop monitors**. Android and phone browser viewing is currently unoptimized and may appear scattered. The native **Android app is out now**: get `PlayzAnime-<version>-universal.apk` from the [latest release](https://github.com/PlayzAe/playz_anime_app/releases/latest). Right now it is my most up-to-date version. It handles extensions well to a point but still has issues, and I am looking for people to help me with it.
 
 ---
 
@@ -62,7 +62,7 @@ PlayzAnime is a **streaming platform** and **media client** with a **web app** a
   </tr>
   <tr>
     <td width="50%"><img src=".github/readme/profiles.png" alt="Profiles"/><br/><sub>Profiles you can share with friends</sub></td>
-    <td width="50%"><img src=".github/readme/downloads.png" alt="Downloads"/><br/><sub>Downloads live in the Windows app</sub></td>
+    <td width="50%"><img src=".github/readme/downloads.png" alt="Downloads"/><br/><sub>Downloads live in the Windows and Android apps</sub></td>
   </tr>
 </table>
 
@@ -155,6 +155,6 @@ This repository includes a multi-stage [Dockerfile](Dockerfile) ready for one-cl
 > 
 > To guarantee continuous, uninterrupted access:
 > - **Bookmark the landing page and GitHub:** Keep [playzae.github.io/playz_anime_landingpage](https://playzae.github.io/playz_anime_landingpage/) bookmarked for active mirrors and domain announcements.
-> - **Download the Windows Desktop App:** The desktop app runs locally, streams directly, supports true offline downloads, and will never go down. Check [PlayzAe/playz_anime_app](https://github.com/PlayzAe/playz_anime_app) for the latest release.
+> - **Download the Windows or Android app:** Both apps run locally, streams directly, supports true offline downloads, and will never go down. Check [PlayzAe/playz_anime_app](https://github.com/PlayzAe/playz_anime_app) for the latest release. Found a bug, or want to help? Please open an issue or a pull request there.
 > 
 > For copyright requests and DMCA notices, refer to [playzae.github.io/playz_anime_landingpage/docs/policies/copyright-and-dmca](https://playzae.github.io/playz_anime_landingpage/docs/policies/copyright-and-dmca).
