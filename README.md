@@ -155,6 +155,6 @@ This repository includes a multi-stage [Dockerfile](Dockerfile) ready for one-cl
 > 
 > To guarantee continuous, uninterrupted access:
 > - **Bookmark the landing page and GitHub:** Keep [playzae.github.io/playz_anime_landingpage](https://playzae.github.io/playz_anime_landingpage/) bookmarked for active mirrors and domain announcements.
-> - **Download the Windows Desktop App:** The desktop app runs locally, streams directly, supports true offline downloads, and will never go down. Check [PlayzAe/playz_anime_desktopapp](https://github.com/PlayzAe/playz_anime_desktopapp) for the latest release.
+> - **Download the Windows Desktop App:** The desktop app runs locally, streams directly, supports true offline downloads, and will never go down. Check [PlayzAe/playz_anime_app](https://github.com/PlayzAe/playz_anime_app) for the latest release.
 > 
 > For copyright requests and DMCA notices, refer to [playzae.github.io/playz_anime_landingpage/docs/policies/copyright-and-dmca](https://playzae.github.io/playz_anime_landingpage/docs/policies/copyright-and-dmca).

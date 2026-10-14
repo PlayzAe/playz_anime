@@ -55,7 +55,7 @@ Somehow between the larping and terminal staring, actual software got built:
   Analyzes your entire Spotify listening history directly from raw GDPR export zips in your browser. Spotify's API caps you at 50 recent plays and strips song durations, so I reverse-engineered timestamp deltas across 160,000+ plays inside Web Workers. Zero server uploads, 100/100 Lighthouse performance.
 * **[StudyPomo](https://play.google.com/store/apps/details?id=com.everythingabuad.studypomo) (Android / Google Play):** 
   Pomodoro timer built with persistent foreground services and wake locks specifically engineered to survive aggressive OEM task killers on budget phones (like TECNO HiOS).
-* **[PlayzAnime](https://playzae.github.io/playz_anime_landingpage/) ([Desktop App](https://github.com/PlayzAe/playz_anime_desktopapp) | [Web Client](https://playz-anime.onrender.com)):** 
+* **[PlayzAnime](https://playzae.github.io/playz_anime_landingpage/) ([Desktop App](https://github.com/PlayzAe/playz_anime_app) | [Web Client](https://playz-anime.onrender.com)):** 
   High-performance media client and streaming engine. Built-in HLS player with adaptive pre-buffering, auto skip intro/outro, and direct-chunk downloads immune to dead torrent swarms and 0-seeder issues.
 * **[Ponderanda](https://ponderanda.com/):** 
   Daily five-problem arithmetic progression ladder. Clean, quick, zero paywalls.
