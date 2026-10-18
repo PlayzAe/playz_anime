@@ -7,6 +7,7 @@ import { Modal } from '../components/Modal';
 import { useLoader } from '../lib/data';
 import { CHANGELOG_URL, DOCS_URL, GITHUB_URL, POLICIES_URL, RELEASES_URL } from '../lib/links';
 import { navigate } from '../lib/router';
+import { chooseView, storedView } from '../lib/viewmode';
 import { useApp } from '../lib/store';
 import './settings.css';
 
@@ -80,6 +81,20 @@ export function Settings() {
 
         <div className="settings-body">
           <Group id="look" title="Look">
+            {storedView() !== 'mobile' && (
+              <Row title="View" note="The layout this browser uses. Phone view has big buttons, a bottom tab bar and a touch player; switching reloads the page.">
+                <Segmented
+                  label="Layout"
+                  size="sm"
+                  value="desktop"
+                  onChange={(v) => v === 'mobile' && chooseView('mobile', { reload: true })}
+                  options={[
+                    { value: 'desktop', label: 'Computer view' },
+                    { value: 'mobile', label: 'Phone view' },
+                  ]}
+                />
+              </Row>
+            )}
             <Row title="Accent" note="Used for the play button and progress bars. Named after traditional Japanese colours.">
               <div className="swatches" role="radiogroup" aria-label="Accent colour">
                 {ACCENTS.map((a) => (

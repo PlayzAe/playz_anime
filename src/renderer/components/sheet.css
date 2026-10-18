@@ -1,0 +1,101 @@
+/* ── Bottom sheet ── */
+.sheet-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 1500;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: rgb(0 0 0 / 0.55);
+}
+.sheet {
+  width: 100%;
+  max-width: 560px;
+  max-height: 82dvh;
+  display: flex;
+  flex-direction: column;
+  padding: 6px 0 calc(10px + env(safe-area-inset-bottom));
+  border-radius: 18px 18px 0 0;
+  border: 1px solid var(--line);
+  border-bottom: 0;
+  background: var(--ink-1);
+  box-shadow: 0 -20px 50px rgb(0 0 0 / 0.45);
+}
+.sheet-grip {
+  align-self: center;
+  width: 38px;
+  height: 4px;
+  margin: 4px 0 8px;
+  border-radius: 2px;
+  background: var(--ink-4, #3a3632);
+}
+.sheet-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 2px 10px 8px 18px;
+}
+.sheet-title {
+  font-size: 16px;
+  font-weight: 720;
+}
+.sheet-close {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  color: var(--paper-2);
+}
+.sheet-body {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0 8px;
+}
+.sheet-option {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  min-height: 52px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  text-align: left;
+  font-size: 15px;
+  font-weight: 560;
+  color: var(--paper);
+}
+.sheet-option:active {
+  background: var(--ink-3);
+}
+.sheet-option.is-selected {
+  background: color-mix(in oklab, var(--accent) 14%, transparent);
+}
+.sheet-option.is-danger {
+  color: #ff6b5b;
+}
+.sheet-option-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.sheet-option-text small {
+  font-size: 12.5px;
+  font-weight: 450;
+  color: var(--paper-3);
+}
+.sheet-tick {
+  flex: none;
+  color: var(--accent);
+}
+.sheet-section {
+  padding: 12px 12px 4px;
+  font-size: 11.5px;
+  font-weight: 750;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--paper-3);
+}

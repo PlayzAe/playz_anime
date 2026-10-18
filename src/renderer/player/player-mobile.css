@@ -1,0 +1,311 @@
+/* ── Phone layout player: the Android app's controls ──
+   A tap shows or hides everything; the gesture layer catches taps between buttons. */
+
+.player.is-mobile {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
+.mp-gesture {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+.player.is-mobile .player-cues {
+  z-index: 2;
+  pointer-events: none;
+  bottom: 14%;
+}
+.player.is-mobile.is-idle .player-cues {
+  bottom: 6%;
+}
+
+.mp-controls {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  transition: opacity 220ms var(--ease);
+}
+.player.is-mobile.is-idle .mp-controls {
+  opacity: 0;
+}
+.player.is-mobile:not(.is-idle) .mp-controls button,
+.player.is-mobile:not(.is-idle) .mp-seek,
+.player.is-mobile.is-locked:not(.is-idle) .mp-locked button {
+  pointer-events: auto;
+}
+.mp-shade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgb(0 0 0 / 0.7) 0%, rgb(0 0 0 / 0.14) 30%, rgb(0 0 0 / 0.14) 60%, rgb(0 0 0 / 0.8) 100%);
+}
+
+.mp-round {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgb(0 0 0 / 0.45);
+  color: #fff;
+}
+.mp-round.is-bare {
+  background: transparent;
+}
+.mp-round.is-small {
+  width: 36px;
+  height: 36px;
+}
+.mp-round:active,
+.mp-play:active {
+  scale: 0.9;
+}
+
+/* Top: back, titles, lock, settings. */
+.mp-top {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  right: 4px;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+.mp-titles {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  padding-left: 2px;
+}
+.mp-title,
+.mp-sub {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.mp-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #fff;
+}
+.mp-sub {
+  font-size: 11.5px;
+  color: var(--paper-2);
+}
+
+/* Centre: back 10, play, forward 10. */
+.mp-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+}
+.mp-play {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--accent-ink, #fff);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.35);
+}
+.mp-play.is-busy {
+  background: rgb(0 0 0 / 0.45);
+  box-shadow: none;
+}
+
+/* Bottom: time, scrubber, duration, next, fullscreen. */
+.mp-bottom {
+  position: absolute;
+  left: 10px;
+  right: 4px;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.mp-time {
+  flex: none;
+  min-width: 32px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #fff;
+}
+.mp-time.is-dim {
+  color: var(--paper-2);
+}
+.mp-seek {
+  flex: 1;
+  min-width: 0;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  touch-action: none;
+}
+.mp-track {
+  position: relative;
+  width: 100%;
+  height: 4px;
+  border-radius: 2px;
+  background: rgb(239 233 225 / 0.22);
+  transition: height 120ms var(--ease);
+}
+.mp-seek.is-scrubbing .mp-track {
+  height: 6px;
+}
+.mp-thumb {
+  position: absolute;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--accent);
+  translate: -50% -50%;
+  transition:
+    width 120ms var(--ease),
+    height 120ms var(--ease);
+}
+.mp-seek.is-scrubbing .mp-thumb {
+  width: 20px;
+  height: 20px;
+}
+
+/* Fullscreen: bigger targets, clear of notches and the home bar. */
+.player.is-mobile.is-fullscreen .mp-top {
+  top: calc(10px + env(safe-area-inset-top));
+  left: max(14px, env(safe-area-inset-left));
+  right: max(14px, env(safe-area-inset-right));
+}
+.player.is-mobile.is-fullscreen .mp-title {
+  font-size: 16px;
+}
+.player.is-mobile.is-fullscreen .mp-center {
+  gap: 44px;
+}
+.player.is-mobile.is-fullscreen .mp-round.is-seek {
+  width: 48px;
+  height: 48px;
+}
+.player.is-mobile.is-fullscreen .mp-play {
+  width: 64px;
+  height: 64px;
+}
+.player.is-mobile.is-fullscreen .mp-bottom {
+  left: max(22px, env(safe-area-inset-left));
+  right: max(14px, env(safe-area-inset-right));
+  bottom: calc(10px + env(safe-area-inset-bottom));
+}
+
+/* Locked: only the lock shows, on the left edge. */
+.mp-locked {
+  display: flex;
+  align-items: center;
+  padding-left: max(16px, env(safe-area-inset-left));
+}
+
+/* Double-tap feedback: a soft half-moon on the side that skipped. */
+.mp-skip-flash {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 2;
+  width: 36%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  background: rgb(255 255 255 / 0.1);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  pointer-events: none;
+  animation: mp-fade 160ms var(--ease);
+}
+.mp-skip-flash.is-left {
+  left: 0;
+  border-radius: 0 999px 999px 0;
+}
+.mp-skip-flash.is-right {
+  right: 0;
+  border-radius: 999px 0 0 999px;
+}
+@keyframes mp-fade {
+  from {
+    opacity: 0;
+  }
+}
+.mp-tag {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  z-index: 4;
+  translate: -50% 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgb(0 0 0 / 0.7);
+  color: #fff;
+  font-size: 12.5px;
+  font-weight: 700;
+  pointer-events: none;
+}
+.player.is-mobile .player-flash,
+.player.is-mobile .player-center {
+  z-index: 4;
+}
+
+/* Skip intro / next episode, above the bottom row. */
+.player.is-mobile .mp-pill {
+  z-index: 4;
+  right: 12px;
+  bottom: 46px;
+  height: 38px;
+  padding: 0 14px;
+  gap: 6px;
+  border-radius: 7px;
+  background: var(--paper);
+  color: var(--ink-0);
+  font-size: 13px;
+  font-weight: 800;
+}
+.player.is-mobile.is-fullscreen .mp-pill {
+  right: max(28px, env(safe-area-inset-right));
+  bottom: calc(70px + env(safe-area-inset-bottom));
+}
+.player.is-mobile .player-upnext {
+  z-index: 5;
+  right: 12px;
+  bottom: 46px;
+  width: min(300px, calc(100% - 24px));
+}
+
+/* Speed chips in the playback sheet. */
+.mp-speeds {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 4px 12px 10px;
+}
+.mp-chip {
+  min-height: 38px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  font-size: 14px;
+  font-weight: 650;
+  color: var(--paper);
+}
+.mp-chip.is-on {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--accent-ink, #fff);
+}

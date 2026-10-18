@@ -11,6 +11,7 @@ import { UpdateNotifier } from './components/UpdateNotifier';
 import { navigate, useRoute, type Route, type RouteName } from './lib/router';
 import { useApp } from './lib/store';
 import { useIsPhone } from './lib/viewport';
+import { chooseView, takeJustPicked } from './lib/viewmode';
 import { Discover } from './views/Discover';
 import { FirstRun } from './views/FirstRun';
 import { Home } from './views/Home';
@@ -110,6 +111,11 @@ export function App() {
       .isDone()
       .then(setSetupDone)
       .catch(() => setSetupDone(true));
+    if (takeJustPicked()) {
+      toast('You’re on Computer view. Picked wrong? Switch any time in Settings → Look → View.', {
+        action: { label: 'Use phone view', run: () => chooseView('mobile', { reload: true }) },
+      });
+    }
   }, []);
 
   useEffect(() => {

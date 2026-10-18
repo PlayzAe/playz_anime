@@ -3,10 +3,12 @@ import { useCallback, useEffect, useRef, useState, type PointerEvent as ReactPoi
 import type { ResolvedStream } from '../../shared/types';
 import { Menu } from '../components/Controls';
 import { Icon } from '../components/Icon';
+import { Sheet, SheetOption } from '../components/Sheet';
 import { Spinner } from '../components/States';
 import { clock } from '../lib/format';
 import { SubtitleCustomizerDialog, applySubtitleStyleToElement, loadSubtitleStyle, type SubtitleStyle } from './SubtitleCustomizer';
 import './player.css';
+import './player-mobile.css';
 
 export interface DirectPlayerProps {
   stream: ResolvedStream;
@@ -31,6 +33,14 @@ export interface DirectPlayerProps {
   onWatched: () => void;
   onVolume: (volume: number) => void;
   onFatal: (message: string) => void;
+  /** 'mobile': the phone layout's touch controls, after the Android app. The page then owns fullscreen. */
+  variant?: 'desktop' | 'mobile';
+  /** Mobile: whether the page shows the player fullscreen. */
+  fullscreen?: boolean;
+  onFullscreen?: () => void;
+  onBack?: () => void;
+  /** Mobile: the viewer tapped play. A real tap, so the page may go fullscreen from it. */
+  onPlayTap?: () => void;
 }
 
 const SPEEDS = [0.5, 0.75, 1, 1.25, 1.5, 2];
@@ -71,6 +81,7 @@ export function DirectPlayer(props: DirectPlayerProps) {
   const [subIndex, setSubIndex] = useState(-1);
   const [subStyle, setSubStyle] = useState<SubtitleStyle>(loadSubtitleStyle);
   const [customizerOpen, setCustomizerOpen] = useState(false);
+  const [menu, setMenu] = useState(false);
   const [chrome, setChrome] = useState(true);
   const chromeRef = useRef(chrome);
   chromeRef.current = chrome;
@@ -267,6 +278,7 @@ export function DirectPlayer(props: DirectPlayerProps) {
   }, []);
 
   const toggleFullscreen = useCallback(() => {
+    if (propsRef.current.variant === 'mobile') return propsRef.current.onFullscreen?.();
     if (document.fullscreenElement) void document.exitFullscreen();
     else if (pseudoFsRef.current) setPseudoFs(false);
     else void enterFullscreen();
@@ -276,6 +288,7 @@ export function DirectPlayer(props: DirectPlayerProps) {
     const v = video();
     if (v.paused || v.ended) {
       void v.play();
+      if (propsRef.current.variant === 'mobile') return propsRef.current.onPlayTap?.();
       // The first play on a phone held upright goes fullscreen and sideways, like the app.
       if (!autoFs.current && touchPhone() && matchMedia('(orientation: portrait)').matches && !document.fullscreenElement && !pseudoFsRef.current) {
         autoFs.current = true;
@@ -285,7 +298,9 @@ export function DirectPlayer(props: DirectPlayerProps) {
   }, [enterFullscreen]);
 
   // Turning a phone sideways while it plays goes fullscreen; turning it back leaves the window fill.
+  // The phone layout's watch page does this itself.
   useEffect(() => {
+    if (props.variant === 'mobile') return;
     const landscape = matchMedia('(orientation: landscape)');
     const onTurn = () => {
       if (!touchPhone() || document.fullscreenElement) return;
@@ -297,31 +312,92 @@ export function DirectPlayer(props: DirectPlayerProps) {
     return () => landscape.removeEventListener('change', onTurn);
   }, [enterFullscreen]);
 
-  // Touch: a tap shows or hides the controls, a double tap on either side skips 10 seconds,
-  // in the middle it toggles fullscreen. The mouse keeps click to pause.
-  const lastTap = useRef<{ at: number; timer?: number }>({ at: 0 });
+  // Touch, as in the app: a tap shows or hides the controls, a double tap skips 10 seconds on
+  // either side (play/pause in the middle) and holding plays at 2×. Show or hide is decided at
+  // touch-down: the browser's compatibility mouse events re-show the controls before the tap ends,
+  // which used to make every tap hide them. The mouse keeps click to pause.
   const touched = useRef(false);
-  const onVideoPointerUp = (e: ReactPointerEvent<HTMLVideoElement>) => {
+  const gesture = useRef<{ x: number; y: number; shown: boolean; moved: boolean; boosted: boolean; hold?: number; timer?: number; lastUp: number }>({
+    x: 0,
+    y: 0,
+    shown: true,
+    moved: false,
+    boosted: false,
+    lastUp: 0,
+  });
+  const [boost, setBoost] = useState(false);
+  const [locked, setLocked] = useState(false);
+  const lockedRef = useRef(locked);
+  lockedRef.current = locked;
+  const speedRef = useRef(speed);
+  speedRef.current = speed;
+  const [skipFlash, setSkipFlash] = useState<{ side: -1 | 1; secs: number } | null>(null);
+  const skipFlashTimer = useRef<number | undefined>(undefined);
+
+  const skipSide = (side: -1 | 1) => {
+    seekBy(side * 10);
+    setSkipFlash((f) => ({ side, secs: f && f.side === side ? f.secs + 10 : 10 }));
+    window.clearTimeout(skipFlashTimer.current);
+    skipFlashTimer.current = window.setTimeout(() => setSkipFlash(null), 700);
+  };
+
+  const onTouchDown = (e: ReactPointerEvent<HTMLElement>) => {
     touched.current = e.pointerType === 'touch';
     if (!touched.current) return;
-    const r = e.currentTarget.getBoundingClientRect();
-    const x = (e.clientX - r.left) / r.width;
-    window.clearTimeout(lastTap.current.timer);
-    if (e.timeStamp - lastTap.current.at < 280) {
-      lastTap.current = { at: 0 };
-      if (x < 0.35) seekBy(-10);
-      else if (x > 0.65) seekBy(10);
-      else toggleFullscreen();
+    const g = gesture.current;
+    g.x = e.clientX;
+    g.y = e.clientY;
+    g.shown = chromeRef.current;
+    g.moved = false;
+    g.boosted = false;
+    window.clearTimeout(g.hold);
+    if (lockedRef.current) return;
+    g.hold = window.setTimeout(() => {
+      const v = videoRef.current;
+      if (!v || v.paused) return;
+      g.boosted = true;
+      v.playbackRate = 2;
+      setBoost(true);
+    }, 500);
+  };
+  const onTouchMove = (e: ReactPointerEvent<HTMLElement>) => {
+    const g = gesture.current;
+    if (e.pointerType !== 'touch' || g.moved) return;
+    if (Math.hypot(e.clientX - g.x, e.clientY - g.y) > 12) {
+      g.moved = true;
+      window.clearTimeout(g.hold);
+    }
+  };
+  const onTouchUp = (e: ReactPointerEvent<HTMLElement>) => {
+    if (e.pointerType !== 'touch') return;
+    const g = gesture.current;
+    window.clearTimeout(g.hold);
+    if (g.boosted) {
+      g.boosted = false;
+      setBoost(false);
+      if (videoRef.current) videoRef.current.playbackRate = speedRef.current;
       return;
     }
-    lastTap.current = {
-      at: e.timeStamp,
-      timer: window.setTimeout(() => {
-        const v = videoRef.current;
-        if (chromeRef.current && v && !v.paused) setChrome(false);
-        else wake();
-      }, 280),
-    };
+    if (g.moved) return;
+    const r = e.currentTarget.getBoundingClientRect();
+    const x = (e.clientX - r.left) / r.width;
+    window.clearTimeout(g.timer);
+    if (e.timeStamp - g.lastUp < 300 && !lockedRef.current) {
+      g.lastUp = 0;
+      if (x < 0.38) skipSide(-1);
+      else if (x > 0.62) skipSide(1);
+      else toggle();
+      return;
+    }
+    g.lastUp = e.timeStamp;
+    const shown = g.shown;
+    g.timer = window.setTimeout(() => {
+      const v = videoRef.current;
+      if (shown && v && !v.paused) {
+        window.clearTimeout(hideTimer.current);
+        setChrome(false);
+      } else wake();
+    }, 300);
   };
 
   // Holding an arrow key fires a seek every few milliseconds, and a burst of seeks is what
@@ -535,21 +611,23 @@ export function DirectPlayer(props: DirectPlayerProps) {
   const pct = (t: number) => `${duration ? (t / duration) * 100 : 0}%`;
   const volIcon = muted || volume === 0 ? 'mute' : volume < 0.5 ? 'volumeLow' : 'volume';
 
-  return (
-    <div
-      ref={rootRef}
-      className={`player ${chrome ? '' : 'is-idle'} ${fullscreen || pseudoFs ? 'is-fullscreen' : ''} ${pseudoFs ? 'is-pseudo-fs' : ''}`}
-      onMouseMove={wake}
-      onMouseLeave={() => playing && !rootRef.current?.querySelector('.menu-panel') && setChrome(false)}
-    >
+  const mobile = props.variant === 'mobile';
+
+  const videoEl = (
       <video
         ref={videoRef}
         className="player-video"
         crossOrigin="anonymous"
         playsInline
-        onPointerUp={onVideoPointerUp}
-        onClick={() => !touched.current && toggle()}
-        onDoubleClick={() => !touched.current && toggleFullscreen()}
+        {...(mobile
+          ? {}
+          : {
+              onPointerDown: onTouchDown,
+              onPointerMove: onTouchMove,
+              onPointerUp: onTouchUp,
+              onClick: () => !touched.current && toggle(),
+              onDoubleClick: () => !touched.current && toggleFullscreen(),
+            })}
         onPlay={() => setPlaying(true)}
         onPause={() => {
           setPlaying(false);
@@ -585,6 +663,239 @@ export function DirectPlayer(props: DirectPlayerProps) {
           <track key={s.url} ref={(el) => void (trackRefs.current[i] = el)} kind="subtitles" src={s.url} label={s.label} />
         ))}
       </video>
+  );
+
+  const upNextEl = (upNext !== null || upNextIdle) && hasNext && (
+    <div className="player-upnext" role="dialog" aria-label="Up next">
+      <span className="upnext-label">Up next</span>
+      <span className="upnext-title clamp-2">{props.nextLabel}</span>
+      <div className="upnext-actions">
+        <button type="button" className="upnext-play" onClick={() => (setUpNext(null), props.onNext())}>
+          <Icon name="play" size={16} />
+          {upNext !== null && upNext > 0 ? `Playing in ${upNext}` : 'Play now'}
+        </button>
+        <button
+          type="button"
+          className="upnext-cancel"
+          onClick={() => {
+            upNextDismissed.current = true;
+            setUpNext(null);
+            setUpNextIdle(false);
+          }}
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  );
+
+  const customizer = <SubtitleCustomizerDialog open={customizerOpen} onClose={() => setCustomizerOpen(false)} style={subStyle} onChange={setSubStyle} />;
+
+  // ── Phone layout: the Android app's controls ──
+  if (mobile) {
+    const full = Boolean(props.fullscreen);
+    const busy = waiting && (playing || time < 1);
+    return (
+      <div
+        ref={rootRef}
+        className={`player is-mobile ${chrome ? '' : 'is-idle'} ${full ? 'is-fullscreen' : ''} ${locked ? 'is-locked' : ''}`}
+      >
+        {videoEl}
+        <div className="player-cues" ref={cueRef} aria-live="off" />
+
+        {/* Taps, double taps and holds land here; buttons sit above it. */}
+        <div className="mp-gesture" onPointerDown={onTouchDown} onPointerMove={onTouchMove} onPointerUp={onTouchUp} onPointerCancel={onTouchUp} onContextMenu={(e) => e.preventDefault()} />
+
+        {skipFlash && (
+          <div className={`mp-skip-flash ${skipFlash.side < 0 ? 'is-left' : 'is-right'}`} aria-hidden="true">
+            <Icon name={skipFlash.side < 0 ? 'back10' : 'fwd10'} size={26} />
+            <span className="num">
+              {skipFlash.side < 0 ? '−' : '+'}
+              {skipFlash.secs}s
+            </span>
+          </div>
+        )}
+        {boost && (
+          <div className="mp-tag">
+            <Icon name="speed" size={14} /> 2× speed
+          </div>
+        )}
+        {flash && !skipFlash && <div className="player-flash num">{flash}</div>}
+        {busy && !chrome && (
+          <div className="player-center">
+            <Spinner size={34} />
+          </div>
+        )}
+
+        {locked ? (
+          <div className="mp-controls mp-locked">
+            <button
+              type="button"
+              className="mp-round"
+              aria-label="Unlock the screen"
+              onClick={() => {
+                setLocked(false);
+                wake();
+              }}
+            >
+              <Icon name="lock" size={20} />
+            </button>
+          </div>
+        ) : (
+          <div className="mp-controls" aria-hidden={!chrome}>
+            <div className="mp-shade" />
+            <div className="mp-top">
+              <button type="button" className="mp-round is-bare" aria-label={full ? 'Exit full screen' : 'Back'} onClick={() => (full ? props.onFullscreen?.() : props.onBack?.())}>
+                <Icon name="arrowLeft" size={20} />
+              </button>
+              <div className="mp-titles">
+                <span className="mp-title">{subtitle}</span>
+                <span className="mp-sub">{title}</span>
+              </div>
+              {document.pictureInPictureEnabled && (
+                <button type="button" className="mp-round is-bare" aria-label="Picture in picture" onClick={() => (document.pictureInPictureElement ? void document.exitPictureInPicture() : void video().requestPictureInPicture())}>
+                  <Icon name="pip" size={19} />
+                </button>
+              )}
+              <button
+                type="button"
+                className="mp-round is-bare"
+                aria-label="Lock the screen"
+                onClick={() => {
+                  setLocked(true);
+                  say('Screen locked · tap the lock to unlock');
+                }}
+              >
+                <Icon name="unlock" size={19} />
+              </button>
+              <button type="button" className="mp-round is-bare" aria-label="Quality, speed and subtitles" onClick={() => setMenu(true)}>
+                <Icon name="settings" size={20} />
+              </button>
+            </div>
+
+            <div className="mp-center">
+              <button type="button" className="mp-round is-seek" aria-label="Back 10 seconds" onClick={() => (skipSide(-1), wake())}>
+                <Icon name="back10" size={21} />
+              </button>
+              {busy ? (
+                <span className="mp-play is-busy">
+                  <Spinner size={26} />
+                </span>
+              ) : (
+                <button type="button" className="mp-play" aria-label={playing ? 'Pause' : 'Play'} onClick={() => (toggle(), wake())}>
+                  <Icon name={playing ? 'pause' : 'play'} size={full ? 28 : 24} />
+                </button>
+              )}
+              <button type="button" className="mp-round is-seek" aria-label="Forward 10 seconds" onClick={() => (skipSide(1), wake())}>
+                <Icon name="fwd10" size={21} />
+              </button>
+            </div>
+
+            <div className="mp-bottom">
+              <span className="mp-time num">{clock(shown)}</span>
+              <div
+                className={`mp-seek ${scrub !== null ? 'is-scrubbing' : ''}`}
+                ref={seekRef}
+                onPointerDown={(e) => {
+                  window.clearTimeout(hideTimer.current);
+                  onSeekDown(e);
+                }}
+                onPointerMove={(e) => scrub !== null && onSeekMove(e)}
+                onPointerUp={(e) => {
+                  onSeekUp(e);
+                  wake();
+                }}
+                onPointerCancel={() => setScrub(null)}
+                role="slider"
+                aria-label="Seek"
+                aria-valuemin={0}
+                aria-valuemax={Math.round(duration)}
+                aria-valuenow={Math.round(shown)}
+                aria-valuetext={`${clock(shown)} of ${clock(duration)}`}
+                tabIndex={0}
+              >
+                <div className="mp-track">
+                  <span className="seek-buffer" style={{ width: pct(buffered) }} />
+                  {intro && duration > 0 && <span className="seek-chapter" style={{ left: pct(intro.start), width: pct(intro.end - intro.start) }} />}
+                  {outro && duration > 0 && <span className="seek-chapter" style={{ left: pct(outro.start), width: pct(Math.min(duration, outro.end) - outro.start) }} />}
+                  <span className="seek-played" style={{ width: pct(shown) }} />
+                  <span className="mp-thumb" style={{ left: pct(shown) }} />
+                </div>
+              </div>
+              <span className="mp-time is-dim num">{clock(duration)}</span>
+              {hasNext && (
+                <button type="button" className="mp-round is-bare is-small" aria-label="Next episode" onClick={props.onNext}>
+                  <Icon name="next" size={18} />
+                </button>
+              )}
+              <button type="button" className="mp-round is-bare is-small" aria-label={full ? 'Exit full screen' : 'Full screen'} onClick={() => props.onFullscreen?.()}>
+                <Icon name={full ? 'fullscreenExit' : 'fullscreen'} size={18} />
+              </button>
+            </div>
+          </div>
+        )}
+
+        {!locked && inIntro && !props.autoSkipIntro && (
+          <button type="button" className="player-skip mp-pill" onClick={skipIntro}>
+            <Icon name="next" size={15} /> Skip intro
+          </button>
+        )}
+        {!locked && inOutro && hasNext && upNext === null && (
+          <button type="button" className="player-skip mp-pill" onClick={props.onNext}>
+            <Icon name="next" size={15} /> Next episode
+          </button>
+        )}
+        {upNextEl}
+
+        <Sheet open={menu} onClose={() => setMenu(false)} title="Playback">
+          {levels.length > 0 && (
+            <>
+              <div className="sheet-section">Quality</div>
+              {levels.length > 1 && <SheetOption label="Auto" hint="Changes with your connection" selected={level === -1} onClick={() => pickLevel(-1)} />}
+              {levels.map((l) => (
+                <SheetOption key={l.index} label={`${l.height}p`} selected={levels.length === 1 || level === l.index} onClick={() => pickLevel(l.index)} />
+              ))}
+            </>
+          )}
+          <div className="sheet-section">Speed</div>
+          <div className="mp-speeds">
+            {SPEEDS.map((s) => (
+              <button key={s} type="button" className={`mp-chip ${speed === s ? 'is-on' : ''}`} onClick={() => pickSpeed(s)}>
+                {s === 1 ? 'Normal' : `${s}×`}
+              </button>
+            ))}
+          </div>
+          {stream.subtitles.length > 0 && (
+            <>
+              <div className="sheet-section">Subtitles</div>
+              <SheetOption label="Off" selected={subIndex === -1} onClick={() => setSubIndex(-1)} />
+              {stream.subtitles.map((s, i) => (
+                <SheetOption key={s.url} label={s.label} selected={subIndex === i} onClick={() => setSubIndex(i)} />
+              ))}
+            </>
+          )}
+          <SheetOption
+            label="Subtitle appearance"
+            icon="subtitles"
+            onClick={() => {
+              setMenu(false);
+              setCustomizerOpen(true);
+            }}
+          />
+        </Sheet>
+        {customizer}
+      </div>
+    );
+  }
+
+  return (
+    <div
+      ref={rootRef}
+      className={`player ${chrome ? '' : 'is-idle'} ${fullscreen || pseudoFs ? 'is-fullscreen' : ''} ${pseudoFs ? 'is-pseudo-fs' : ''}`}
+      onMouseMove={wake}
+      onMouseLeave={() => playing && !rootRef.current?.querySelector('.menu-panel') && setChrome(false)}
+    >
+      {videoEl}
 
       <div className="player-cues" ref={cueRef} aria-live="off" />
 
@@ -618,29 +929,7 @@ export function DirectPlayer(props: DirectPlayerProps) {
         </button>
       )}
 
-      {(upNext !== null || upNextIdle) && hasNext && (
-        <div className="player-upnext" role="dialog" aria-label="Up next">
-          <span className="upnext-label">Up next</span>
-          <span className="upnext-title clamp-2">{props.nextLabel}</span>
-          <div className="upnext-actions">
-            <button type="button" className="upnext-play" onClick={() => (setUpNext(null), props.onNext())}>
-              <Icon name="play" size={16} />
-              {upNext !== null && upNext > 0 ? `Playing in ${upNext}` : 'Play now'}
-            </button>
-            <button
-              type="button"
-              className="upnext-cancel"
-              onClick={() => {
-                upNextDismissed.current = true;
-                setUpNext(null);
-                setUpNextIdle(false);
-              }}
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-      )}
+      {upNextEl}
 
       <div className="player-bottom">
         <div
@@ -791,12 +1080,7 @@ export function DirectPlayer(props: DirectPlayerProps) {
         </div>
       </div>
 
-      <SubtitleCustomizerDialog
-        open={customizerOpen}
-        onClose={() => setCustomizerOpen(false)}
-        style={subStyle}
-        onChange={setSubStyle}
-      />
+      {customizer}
     </div>
   );
 }
