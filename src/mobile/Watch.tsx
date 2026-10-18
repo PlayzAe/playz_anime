@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+﻿import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { Audio, Episode, ResolvedStream } from '../shared/types';
 import { Button, Segmented, Switch } from '../renderer/components/Controls';
 import { Icon } from '../renderer/components/Icon';
@@ -10,7 +10,7 @@ import { Link, navigate, useRoute, withQuery } from '../renderer/lib/router';
 import { useApp, useWatched } from '../renderer/lib/store';
 import { DirectPlayer } from '../renderer/player/DirectPlayer';
 import { EmbedPlayer } from '../renderer/player/EmbedPlayer';
-import { back, RoundButton } from './kit';
+import { back, RoundIcon } from './kit';
 
 /*
  * Watch, as in the Android app: the player on top, episode details and the list below.
@@ -109,7 +109,7 @@ export function MWatch({ id, ep }: { id: number; ep: number }) {
     [id, effectiveAudio],
   );
 
-  // ── Fullscreen and rotation ──
+  // â”€â”€ Fullscreen and rotation â”€â”€
   const stageRef = useRef<HTMLDivElement>(null);
   const [full, setFull] = useState(false);
   const enterFull = useCallback(async () => {
@@ -151,15 +151,15 @@ export function MWatch({ id, ep }: { id: number; ep: number }) {
     if (!full && autoRotate() && portrait()) void enterFull();
   };
 
-  if (media.error && !media.data) return <ErrorState title="Couldn’t load this show" error={media.error} onRetry={media.reload} />;
+  if (media.error && !media.data) return <ErrorState title="Couldnâ€™t load this show" error={media.error} onRetry={media.reload} />;
 
   const title = media.data ? titleOf(media.data, settings.titleLanguage) : '';
-  const heading = episode ? (epTitle(episode) ? `E${episode.number} · ${epTitle(episode)}` : `Episode ${episode.number}`) : `Episode ${ep}`;
+  const heading = episode ? (epTitle(episode) ? `E${episode.number} Â· ${epTitle(episode)}` : `Episode ${episode.number}`) : `Episode ${ep}`;
   const poster = episode?.thumbnail || media.data?.bannerImage || (media.data ? coverOf(media.data) : null);
 
   let stage;
-  if (eps.error && !eps.data) stage = <ErrorState compact title="Couldn’t find episodes" error={eps.error} onRetry={eps.reload} />;
-  else if (eps.data && !episode) stage = <p className="mw-msg">Episode {ep} isn’t available.</p>;
+  if (eps.error && !eps.data) stage = <ErrorState compact title="Couldnâ€™t find episodes" error={eps.error} onRetry={eps.reload} />;
+  else if (eps.data && !episode) stage = <p className="mw-msg">Episode {ep} isnâ€™t available.</p>;
   else if (!embedUrl) stage = <Spinner size={30} label="Finding episodes" />;
   else if (mode === 'embed') stage = <EmbedPlayer url={embedUrl} startAt={startAt} onProgress={onProgress} />;
   else if (state.status === 'ready' && state.stream.embedUrl === embedUrl)
@@ -199,7 +199,7 @@ export function MWatch({ id, ep }: { id: number; ep: number }) {
     stage = (
       <div className="mw-msg">
         <Icon name="alert" size={24} />
-        <strong>This stream wouldn’t load</strong>
+        <strong>This stream wouldnâ€™t load</strong>
         <span>{state.message}</span>
         <div className="mw-msg-actions">
           <Button size="sm" variant="primary" icon="refresh" onClick={() => setAttempt((a) => a + 1)}>
@@ -216,7 +216,7 @@ export function MWatch({ id, ep }: { id: number; ep: number }) {
       <div className="mw-loading">
         {poster && <Img src={poster} className="mw-poster" eager />}
         <Spinner size={30} />
-        <span>{state.status === 'resolving' && state.slow ? 'This host is slow today. Still trying…' : 'Finding the stream…'}</span>
+        <span>{state.status === 'resolving' && state.slow ? 'This host is slow today. Still tryingâ€¦' : 'Finding the streamâ€¦'}</span>
       </div>
     );
 
@@ -226,8 +226,8 @@ export function MWatch({ id, ep }: { id: number; ep: number }) {
         {stage}
         {mode === 'embed' && (
           <div className="mw-embed-bar">
-            <RoundButton icon="arrowLeft" label="Back" onClick={() => (full ? exitFull() : back())} />
-            <RoundButton icon={full ? 'fullscreenExit' : 'fullscreen'} label="Full screen" onClick={() => (full ? exitFull() : void enterFull())} />
+            <RoundIcon icon="arrowLeft" label="Back" onClick={() => (full ? exitFull() : back())} />
+            <RoundIcon icon={full ? 'fullscreenExit' : 'fullscreen'} label="Full screen" onClick={() => (full ? exitFull() : void enterFull())} />
           </div>
         )}
       </div>
@@ -255,8 +255,8 @@ export function MWatch({ id, ep }: { id: number; ep: number }) {
             />
           )}
           <span className="mw-spacer" />
-          <RoundButton icon="prev" label="Previous episode" disabled={!prev} onClick={() => goTo(prev)} />
-          <RoundButton icon="next" label="Next episode" disabled={!next} onClick={() => goTo(next)} />
+          <RoundIcon icon="prev" label="Previous episode" disabled={!prev} onClick={() => goTo(prev)} />
+          <RoundIcon icon="next" label="Next episode" disabled={!next} onClick={() => goTo(next)} />
         </div>
         <div className="mw-row">
           <Segmented

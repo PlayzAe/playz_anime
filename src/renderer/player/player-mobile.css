@@ -11,13 +11,34 @@
   inset: 0;
   z-index: 1;
 }
+/* Subtitles size to the player, not the window: the chosen size, capped by the player's height,
+   and lifted over the controls while they show (as the app does). */
+.player.is-mobile {
+  container-type: size;
+}
 .player.is-mobile .player-cues {
   z-index: 2;
+  left: 5%;
+  right: 5%;
+  bottom: 56px;
   pointer-events: none;
-  bottom: 14%;
+  transition: bottom 220ms var(--ease);
 }
 .player.is-mobile.is-idle .player-cues {
-  bottom: 6%;
+  bottom: 14px;
+}
+.player.is-mobile.is-fullscreen .player-cues {
+  bottom: calc(92px + env(safe-area-inset-bottom));
+}
+.player.is-mobile.is-fullscreen.is-idle .player-cues {
+  bottom: calc(32px + env(safe-area-inset-bottom));
+}
+.player.is-mobile .cue-line {
+  font-size: min(var(--sub-size, 16px), 6.2cqh);
+  line-height: 1.3;
+}
+.player.is-mobile.is-fullscreen .cue-line {
+  font-size: min(var(--sub-size-fs, 24px), 6.8cqh);
 }
 
 .mp-controls {

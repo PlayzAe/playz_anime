@@ -41,7 +41,8 @@ export function Sheet({ open, onClose, title, children }: { open: boolean; onClo
         </motion.div>
       )}
     </AnimatePresence>,
-    document.body,
+    // In fullscreen only the fullscreen element is drawn, so the sheet goes inside it.
+    document.fullscreenElement ?? document.body,
   );
 }
 

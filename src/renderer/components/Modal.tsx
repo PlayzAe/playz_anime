@@ -70,6 +70,7 @@ export function Modal({ open, onClose, title, children, footer, width = 520, bar
         {footer && <footer className="modal-foot">{footer}</footer>}
       </div>
     </div>,
-    document.body,
+    // In fullscreen only the fullscreen element is drawn (the player's subtitle settings open there).
+    document.fullscreenElement ?? document.body,
   );
 }

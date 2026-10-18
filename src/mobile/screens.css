@@ -1,0 +1,905 @@
+/* ── Phone screens, ported from the Android app's widgets ── */
+
+.m-page {
+  min-height: 100%;
+}
+.m-pad {
+  padding: 0 var(--gutter);
+}
+.m-end {
+  height: 32px;
+}
+.m-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.m-skeleton {
+  display: block;
+}
+.m-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0 var(--gutter);
+}
+
+/* Install pill in the top bar. */
+.m-install {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 30px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--accent) 18%, transparent);
+  border: 1px solid color-mix(in oklab, var(--accent) 45%, transparent);
+  color: var(--paper);
+  font-size: 12px;
+  font-weight: 700;
+}
+@media (max-width: 350px) {
+  .m-install span {
+    display: none;
+  }
+}
+.m-search-pill {
+  width: 38px;
+  padding: 0;
+  justify-content: center;
+}
+.m-install-help {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 0 12px 8px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--paper-2);
+}
+.m-install-help ol {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-left: 20px;
+}
+.m-install-help strong {
+  color: var(--paper);
+}
+.m-install-help svg {
+  display: inline-block;
+  vertical-align: -3px;
+  color: var(--accent);
+}
+
+/* SectionHeader: 19/800 title, 12.5 subtitle, action on the right. */
+.m-sh {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  padding: 26px var(--gutter) 12px;
+}
+.m-sh-text {
+  flex: 1;
+  min-width: 0;
+}
+.m-sh-title {
+  font-size: 19px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+.m-sh-sub {
+  margin-top: 2px;
+  font-size: 12.5px;
+  color: var(--paper-3);
+}
+.m-sh-action {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding-bottom: 2px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--paper-2);
+}
+
+/* Shelf: fixed-width items you swipe. */
+.m-shelf {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: var(--w, 118px);
+  gap: var(--gap, 12px);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  padding: 0 var(--gutter) 2px;
+  scroll-padding: 0 var(--gutter);
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+}
+.m-shelf::-webkit-scrollbar {
+  display: none;
+}
+.m-shelf > * {
+  scroll-snap-align: start;
+}
+
+/* PosterCard: 2:3 cover, score and badge tags, two-line title, meta. */
+.m-card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  text-align: left;
+  transition: scale 120ms var(--ease);
+}
+.m-card:active,
+.m-wide:active,
+.m-ranked:active,
+.m-ep:active,
+.m-row:active {
+  scale: 0.97;
+}
+.m-card-frame {
+  position: relative;
+  display: block;
+  aspect-ratio: 2 / 3;
+  border-radius: 7px;
+  overflow: hidden;
+  background: var(--ink-2);
+}
+.m-card-frame .img,
+.m-wide-frame .img,
+.m-ep-thumb .img,
+.m-row-thumb .img {
+  position: absolute;
+  inset: 0;
+}
+.m-card-score {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+}
+.m-card-badge {
+  position: absolute;
+  left: 6px;
+  bottom: 6px;
+}
+.m-card-title {
+  margin-top: 7px;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+.m-card-meta {
+  margin-top: 2px;
+  font-size: 11.5px;
+  color: var(--paper-3);
+}
+.m-skel {
+  display: block;
+  height: 12px;
+  width: 90px;
+  margin-top: 8px;
+  border-radius: 4px;
+}
+.m-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 3px 6px;
+  border-radius: 4px;
+  background: rgb(12 11 10 / 0.85);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--paper);
+  white-space: nowrap;
+}
+
+/* PzBtn. */
+.m-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 46px;
+  padding: 0 18px;
+  border-radius: 7px;
+  border: 1px solid var(--line-2);
+  background: var(--ink-2);
+  color: var(--paper);
+  font-size: 14.5px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.m-btn > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.m-btn.is-primary {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--accent-ink, #fff);
+}
+.m-btn.is-compact {
+  min-height: 36px;
+  padding: 0 12px;
+  font-size: 13px;
+}
+.m-btn.is-grow {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+}
+.m-btn:disabled {
+  opacity: 0.5;
+}
+.m-btn:active {
+  scale: 0.97;
+}
+.m-round.is-bare {
+  background: transparent;
+  border-color: transparent;
+}
+.m-progress {
+  position: relative;
+  display: block;
+  width: 100%;
+  border-radius: 99px;
+  background: rgb(239 233 225 / 0.18);
+  overflow: hidden;
+}
+.m-progress > span {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: var(--accent);
+}
+.m-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* StatePanel. */
+.m-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 48px 32px;
+  text-align: center;
+}
+.m-state-icon {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  margin-bottom: 8px;
+  border-radius: 12px;
+  background: var(--ink-2);
+  color: var(--paper-2);
+}
+.m-state strong {
+  font-size: 16px;
+}
+.m-state p {
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--paper-3);
+}
+.m-state .m-btn {
+  margin-top: 12px;
+}
+
+/* HeroCarousel: 460 tall pages you swipe. */
+.m-hero {
+  position: relative;
+  height: clamp(420px, 56vh, 480px);
+}
+.m-hero.is-empty {
+  margin: var(--gutter);
+  height: 420px;
+  border-radius: 12px;
+}
+.m-hero-track {
+  display: flex;
+  height: 100%;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+.m-hero-track::-webkit-scrollbar {
+  display: none;
+}
+.m-hero-page {
+  position: relative;
+  flex: 0 0 100%;
+  overflow: hidden;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+.m-hero-art {
+  position: absolute;
+  inset: -2px;
+  transition: scale 1400ms var(--ease);
+  scale: 1.08;
+}
+.m-hero-page.is-active .m-hero-art {
+  scale: 1;
+}
+.m-hero-shade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgb(12 11 10 / 0.2) 0%, rgb(12 11 10 / 0.4) 35%, rgb(12 11 10 / 0.95) 78%, var(--ink-0) 100%);
+}
+.m-hero-native {
+  position: absolute;
+  top: 18px;
+  right: var(--gutter);
+  bottom: 80px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow: hidden;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.15;
+  color: rgb(239 233 225 / 0.55);
+}
+.m-hero-body {
+  position: absolute;
+  left: var(--gutter);
+  right: var(--gutter);
+  bottom: 44px;
+  opacity: 0;
+  translate: 0 12px;
+  transition:
+    opacity 500ms var(--ease),
+    translate 500ms var(--ease);
+}
+.m-hero-body.has-native {
+  right: calc(var(--gutter) + 34px);
+}
+.m-hero-page.is-active .m-hero-body {
+  opacity: 1;
+  translate: 0 0;
+}
+.m-hero-kicker {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--paper-2);
+}
+.m-hero-title {
+  margin-top: 8px;
+  font-size: clamp(32px, 11vw, 44px);
+  line-height: 0.95;
+  text-shadow: 0 2px 30px rgb(0 0 0 / 0.35);
+}
+.m-hero-meta {
+  margin-top: 10px;
+  font-size: 12.5px;
+  color: var(--paper-2);
+}
+.m-hero-progress {
+  display: block;
+  width: 180px;
+  margin-top: 10px;
+}
+.m-hero-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+}
+.m-hero-actions .m-btn {
+  min-width: 0;
+}
+.m-hero-pager {
+  position: absolute;
+  right: var(--gutter);
+  bottom: 10px;
+  display: flex;
+  gap: 10px;
+}
+.m-hero-pager button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--paper-4);
+}
+.m-hero-pager button.is-on {
+  color: var(--paper);
+}
+.m-hero-pager i {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: var(--line-2);
+  transition: background-color var(--med) var(--ease);
+}
+.m-hero-pager button.is-on i {
+  background: var(--paper);
+}
+
+/* Top 10: the big outlined number behind each poster. */
+.m-ranked {
+  position: relative;
+  display: block;
+  height: 236px;
+}
+.m-ranked-num {
+  position: absolute;
+  left: 0;
+  bottom: 34px;
+  font-size: 96px;
+  line-height: 1;
+  color: var(--ink-0);
+  -webkit-text-stroke: 1.5px var(--paper-3);
+}
+.m-ranked-card {
+  position: absolute;
+  top: 0;
+  left: 42px;
+  right: 6px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Continue watching: 16:9 cards. */
+.m-wide {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  -webkit-touch-callout: none;
+}
+.m-wide-frame {
+  position: relative;
+  display: block;
+  aspect-ratio: 16 / 9;
+  border-radius: 7px;
+  overflow: hidden;
+  background: var(--ink-2);
+}
+.m-wide-frame::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, transparent, rgb(0 0 0 / 0.67));
+}
+.m-wide-ep {
+  position: absolute;
+  left: 8px;
+  bottom: 9px;
+  z-index: 1;
+  font-size: 12px;
+  font-weight: 800;
+}
+.m-wide-bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+}
+
+/* Detail head: banner, poster, title. */
+.m-dh {
+  position: relative;
+  height: calc(300px + env(safe-area-inset-top));
+}
+.m-dh-banner {
+  position: absolute;
+  inset: 0;
+}
+.m-dh-shade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgb(12 11 10 / 0.53) 0%, rgb(12 11 10 / 0.2) 40%, var(--ink-0) 100%);
+}
+.m-float-back {
+  position: absolute;
+  top: calc(6px + env(safe-area-inset-top));
+  left: 8px;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgb(0 0 0 / 0.45);
+  color: #fff;
+}
+.m-dh-row {
+  position: absolute;
+  left: var(--gutter);
+  right: var(--gutter);
+  bottom: 0;
+  display: flex;
+  align-items: flex-end;
+  gap: 14px;
+}
+.m-dh-poster {
+  position: relative;
+  flex: none;
+  width: 104px;
+  aspect-ratio: 2 / 3;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 14px 34px rgb(0 0 0 / 0.5);
+}
+.m-dh-poster .img {
+  position: absolute;
+  inset: 0;
+}
+.m-dh-titles {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+.m-dh-title {
+  margin-top: 4px;
+  font-size: clamp(24px, 8vw, 30px);
+  line-height: 1.02;
+}
+.m-dh-alt {
+  font-size: 12.5px;
+  color: var(--paper-3);
+}
+.m-meta {
+  margin-top: 14px;
+  font-size: 12.5px;
+  color: var(--paper-2);
+}
+.m-airs {
+  margin-top: 6px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--accent);
+}
+.m-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+}
+.m-actions > .m-btn:not(.is-grow) {
+  flex: none;
+  max-width: 46%;
+}
+.m-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 14px;
+}
+.m-tags .m-tag {
+  background: var(--ink-2);
+  font-weight: 600;
+}
+.m-synopsis {
+  display: block;
+  width: 100%;
+  margin-top: 14px;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--paper-2);
+  text-align: left;
+}
+.m-synopsis.clamp-4 {
+  display: -webkit-box;
+}
+.m-note {
+  margin: 0 var(--gutter) 10px;
+  font-size: 12.5px;
+  color: var(--paper-3);
+}
+.m-pick-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 0 var(--gutter) 8px;
+  font-size: 12px;
+}
+.m-pick-bar strong {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+/* Episode rows: 128 still, label, title. */
+.m-eps,
+.m-chapters,
+.m-rows {
+  display: flex;
+  flex-direction: column;
+}
+.m-ep {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 0 var(--gutter) 10px;
+  text-align: left;
+  -webkit-touch-callout: none;
+  user-select: none;
+}
+.m-ep-thumb {
+  position: relative;
+  flex: none;
+  width: 128px;
+  aspect-ratio: 16 / 9;
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--ink-2);
+}
+.m-ep-num {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgb(0 0 0 / 0.45);
+  font-size: 26px;
+}
+.m-ep-mark {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgb(0 0 0 / 0.53);
+  color: var(--paper-2);
+}
+.m-ep-mark.is-picked {
+  border: 2.5px solid var(--accent);
+  border-radius: 6px;
+  background: rgb(0 0 0 / 0.4);
+  color: var(--accent);
+}
+.m-ep-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+.m-ep-label {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--paper-3);
+}
+.m-ep-title {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.25;
+}
+.m-ep.is-seen .m-ep-title {
+  color: var(--paper-3);
+}
+.m-ep .m-tag {
+  margin-top: 4px;
+  background: var(--ink-3);
+}
+
+/* Manga: source switch and chapter rows. */
+.m-source {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  margin-bottom: 8px;
+  padding: 10px 12px;
+  border-radius: 9px;
+  border: 1px solid var(--line);
+  background: var(--ink-1);
+  text-align: left;
+}
+.m-source span {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.m-source small {
+  font-size: 11px;
+  color: var(--paper-3);
+}
+.m-source strong {
+  font-size: 14px;
+}
+.m-chapter {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 8px 0 var(--gutter);
+  border-bottom: 1px solid var(--line);
+}
+.m-chapter-open {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px 0;
+  text-align: left;
+}
+.m-chapter-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14.5px;
+  font-weight: 650;
+}
+.m-chapter.is-read .m-chapter-name {
+  color: var(--paper-3);
+}
+.m-chapter.is-current .m-chapter-name {
+  color: var(--accent);
+}
+.m-chapter-now {
+  font-size: 11px;
+  font-weight: 700;
+}
+.m-chapter-sub {
+  font-size: 12px;
+  color: var(--paper-3);
+}
+.m-chapter .m-round.is-on {
+  color: var(--accent);
+}
+
+/* Search. */
+.m-search-bar {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: calc(8px + env(safe-area-inset-top)) var(--gutter) 8px 6px;
+  background: rgb(12 11 10 / 0.95);
+  backdrop-filter: blur(14px);
+}
+.m-search-field {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 12px;
+  border-radius: 10px;
+  border: 1px solid var(--line-2);
+  background: var(--ink-2);
+  color: var(--paper-3);
+}
+.m-search-field input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  border: 0;
+  background: none;
+  color: var(--paper);
+  font: inherit;
+  font-size: 16px;
+  outline: none;
+}
+.m-filters {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 8px var(--gutter);
+  scrollbar-width: none;
+}
+.m-filters::-webkit-scrollbar {
+  display: none;
+}
+.m-filters.is-genres .m-chip {
+  min-height: 32px;
+  font-size: 12.5px;
+}
+.m-results-for {
+  padding: 4px var(--gutter) 8px;
+  font-size: 12.5px;
+  color: var(--paper-3);
+}
+.m-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+  gap: 16px 10px;
+  padding: 8px var(--gutter) 0;
+}
+
+/* Schedule. */
+.m-days {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 4px;
+  padding: 12px var(--gutter) 4px;
+}
+.m-day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 8px 0;
+  border-radius: 10px;
+  font-size: 11px;
+  color: var(--paper-3);
+}
+.m-day strong {
+  font-size: 16px;
+  color: var(--paper-2);
+}
+.m-day.is-today strong {
+  color: var(--accent);
+}
+.m-day.is-on {
+  background: var(--paper);
+  color: var(--ink-0);
+}
+.m-day.is-on strong {
+  color: var(--ink-0);
+}
+.m-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px var(--gutter);
+  border-bottom: 1px solid var(--line);
+  color: var(--paper-2);
+}
+.m-row.is-upcoming {
+  opacity: 0.7;
+}
+.m-row-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.m-row-time {
+  flex: none;
+  width: 44px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--paper);
+}
+.m-row-thumb {
+  position: relative;
+  flex: none;
+  width: 44px;
+  aspect-ratio: 2 / 3;
+  border-radius: 5px;
+  overflow: hidden;
+  background: var(--ink-2);
+}
+.m-row-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.m-row-title {
+  font-size: 14px;
+  font-weight: 650;
+  line-height: 1.25;
+  color: var(--paper);
+}
+.m-row-sub {
+  font-size: 12px;
+  color: var(--paper-3);
+}
+
+/* Shared pages kept from the website (reader, profiles, get the app) sit under the bars. */
+.m-app .page {
+  padding-top: 8px;
+}

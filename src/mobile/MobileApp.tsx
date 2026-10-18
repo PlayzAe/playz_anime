@@ -7,25 +7,26 @@ import { UpdateNotifier } from '../renderer/components/UpdateNotifier';
 import { Link, useRoute, type Route, type RouteName } from '../renderer/lib/router';
 import { useApp } from '../renderer/lib/store';
 import { chooseView, takeJustPicked } from '../renderer/lib/viewmode';
-import { Discover } from '../renderer/views/Discover';
 import { FirstRun } from '../renderer/views/FirstRun';
-import { Home } from '../renderer/views/Home';
-import { Library } from '../renderer/views/Library';
-import { MangaDetail } from '../renderer/views/MangaDetail';
-import { MangaHome } from '../renderer/views/MangaHome';
 import { ProfileDetail, Profiles } from '../renderer/views/Profiles';
 import { Reader } from '../renderer/views/Reader';
-import { Schedule } from '../renderer/views/Schedule';
-import { Series } from '../renderer/views/Series';
-import { TopBar } from './kit';
+import { MHome } from './Home';
+import { back, TopBar } from './kit';
+import { MLibrary, MSchedule } from './Lists';
+import { MMangaDetail } from './MangaDetail';
+import { MMangaHome } from './MangaHome';
+import { MSearch } from './Search';
+import { MSeries } from './Series';
 import { MSettings } from './Settings';
 import { MWatch } from './Watch';
 import './mobile.css';
+import './screens.css';
 
 /*
- * The phone layout, after the Android app: five tabs at the bottom, a top bar per tab,
- * a touch player that goes sideways, and no downloads (those live in the apps).
- * The page itself scrolls, so mobile browsers can tuck their address bar away.
+ * The phone layout, ported from the Android app: five tabs at the bottom, a top bar
+ * per tab, detail pages with a floating back button, a touch player that goes sideways,
+ * and no downloads (those live in the apps). The page itself scrolls, so mobile browsers
+ * can tuck their address bar away.
  */
 
 const TABS: { to: string; icon: IconName; label: string; match: RouteName[] }[] = [
@@ -36,40 +37,37 @@ const TABS: { to: string; icon: IconName; label: string; match: RouteName[] }[] 
   { to: '/settings', icon: 'settings', label: 'Settings', match: ['settings'] },
 ];
 
-const TITLES: Partial<Record<RouteName, string>> = {
-  home: 'Anime',
-  mangaHome: 'Manga',
-  discover: 'Search',
-  schedule: 'Schedule',
-  library: 'Library',
-  settings: 'Settings',
-  downloads: 'Get the app',
-  profiles: 'Profiles',
+const TAB_TITLES: Partial<Record<RouteName, [string, string?]>> = {
+  home: ['Anime'],
+  mangaHome: ['Manga', 'Manga · Manhwa · Manhua'],
+  schedule: ['Schedule'],
+  library: ['Library'],
+  settings: ['Settings'],
 };
-const PUSHED: RouteName[] = ['anime', 'manga', 'profile', 'downloads', 'profiles', 'notfound'];
+const PLAIN_TITLES: Partial<Record<RouteName, string>> = { downloads: 'Get the app', profiles: 'Profiles', profile: 'Profile', notfound: 'Not found' };
 const IMMERSIVE: RouteName[] = ['watch', 'read'];
 
 function View({ route }: { route: Route }): ReactNode {
   const id = Number(route.params.id);
   switch (route.name) {
     case 'home':
-      return <Home />;
+      return <MHome />;
     case 'mangaHome':
-      return <MangaHome />;
+      return <MMangaHome />;
     case 'discover':
-      return <Discover />;
+      return <MSearch />;
     case 'schedule':
-      return <Schedule />;
+      return <MSchedule />;
     case 'library':
-      return <Library />;
+      return <MLibrary />;
     case 'settings':
       return <MSettings />;
     case 'downloads':
       return <GetAppPage />;
     case 'anime':
-      return <Series id={id} />;
+      return <MSeries id={id} />;
     case 'manga':
-      return <MangaDetail id={id} />;
+      return <MMangaDetail id={id} />;
     case 'watch':
       return <MWatch id={id} ep={Number(route.params.ep)} />;
     case 'read':
@@ -130,7 +128,8 @@ export function MobileApp() {
   useLayoutEffect(() => {
     const saved = route.via === 'pop' ? scrolls.current.get(route.index) : undefined;
     window.scrollTo(0, saved ?? 0);
-    if (route.name in TITLES) document.title = `${TITLES[route.name]} · PlayzAnime`;
+    const t = TAB_TITLES[route.name]?.[0] ?? PLAIN_TITLES[route.name];
+    if (t) document.title = `${t} · PlayzAnime`;
   }, [route.path]);
   useEffect(() => {
     const onScroll = () => scrolls.current.set(route.index, window.scrollY);
@@ -139,11 +138,22 @@ export function MobileApp() {
   }, [route.index]);
 
   const immersive = IMMERSIVE.includes(route.name);
-  const pushed = PUSHED.includes(route.name);
+  const tab = TAB_TITLES[route.name];
+  const plain = PLAIN_TITLES[route.name];
 
   return (
     <div className={`m-app ${immersive ? 'is-immersive' : ''}`}>
-      {!immersive && <TopBar title={pushed ? TITLES[route.name] : TITLES[route.name] ?? 'PlayzAnime'} pushed={pushed} />}
+      {tab && <TopBar title={tab[0]} subtitle={tab[1]} />}
+      {plain && (
+        <header className="m-top">
+          <button type="button" className="m-round is-bare" aria-label="Back" onClick={back}>
+            <Icon name="arrowLeft" size={20} />
+          </button>
+          <div className="m-top-titles">
+            <span className="m-top-title display">{plain}</span>
+          </div>
+        </header>
+      )}
       <main className="m-main">
         <View key={route.path} route={route} />
       </main>
