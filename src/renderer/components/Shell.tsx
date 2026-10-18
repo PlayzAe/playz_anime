@@ -9,13 +9,15 @@ import './shell.css';
 
 // ── Rail ────────────────────────────────────────────────────────────────────
 
-const NAV: { to: string; icon: IconName; label: string; match: RouteName[] }[] = [
+// `desk`: rail-only on desktop. Phones, tablets and TVs keep the five tabs the
+// mobile app has; Discover and Downloads move to the title bar there.
+const NAV: { to: string; icon: IconName; label: string; match: RouteName[]; desk?: boolean }[] = [
   { to: '/', icon: 'tv', label: 'Anime', match: ['home', 'anime', 'watch'] },
   { to: '/manga', icon: 'manga', label: 'Manga', match: ['mangaHome', 'manga', 'read'] },
-  { to: '/discover', icon: 'discover', label: 'Discover', match: ['discover'] },
+  { to: '/discover', icon: 'discover', label: 'Discover', match: ['discover'], desk: true },
   { to: '/schedule', icon: 'schedule', label: 'Schedule', match: ['schedule'] },
   { to: '/library', icon: 'library', label: 'Library', match: ['library'] },
-  { to: '/downloads', icon: 'downloads', label: 'Downloads', match: ['downloads'] },
+  { to: '/downloads', icon: 'downloads', label: 'Downloads', match: ['downloads'], desk: true },
 ];
 
 export function Rail({ route }: { route: Route }) {
@@ -32,9 +34,9 @@ export function Rail({ route }: { route: Route }) {
         {NAV.map((item) => {
           const current = item.match.includes(route.name);
           return (
-            <Link key={item.to} to={item.to} className={`rail-item ${current ? 'is-current' : ''}`} aria-current={current ? 'page' : undefined} data-tip={item.label}>
+            <Link key={item.to} to={item.to} className={`rail-item ${current ? 'is-current' : ''} ${item.desk ? 'rail-desk' : ''}`} aria-current={current ? 'page' : undefined} data-tip={item.label}>
               <Icon name={item.icon} size={22} />
-              <span className="sr-only">{item.label}</span>
+              <span className="rail-label">{item.label}</span>
               {item.to === '/downloads' && active > 0 && <span className="rail-badge num">{active}</span>}
             </Link>
           );
@@ -43,7 +45,7 @@ export function Rail({ route }: { route: Route }) {
       <div className="rail-foot">
         <a
           href="https://github.com/PlayzAe"
-          className="rail-item"
+          className="rail-item rail-desk"
           data-tip="Support PlayzAnime on GitHub"
           onClick={(e) => {
             e.preventDefault();
@@ -55,9 +57,9 @@ export function Rail({ route }: { route: Route }) {
         </a>
         <Link to="/settings" className={`rail-item ${route.name === 'settings' ? 'is-current' : ''}`} data-tip="Settings">
           <Icon name="settings" size={22} />
-          <span className="sr-only">Settings</span>
+          <span className="rail-label">Settings</span>
         </Link>
-        <Link to="/profiles" className={`rail-item rail-profile ${onProfiles ? 'is-current' : ''}`} data-tip={profile ? `${profile.name} · Profiles` : 'Profiles'}>
+        <Link to="/profiles" className={`rail-item rail-profile rail-desk ${onProfiles ? 'is-current' : ''}`} data-tip={profile ? `${profile.name} · Profiles` : 'Profiles'}>
           <Avatar profile={profile} size={30} own />
           <span className="sr-only">Profiles</span>
         </Link>
@@ -69,7 +71,7 @@ export function Rail({ route }: { route: Route }) {
 // ── Title bar ───────────────────────────────────────────────────────────────
 
 export function TitleBar({ solid, onSearch, route }: { solid: boolean; onSearch: () => void; route: Route }) {
-  const { downloads, online } = useApp();
+  const { downloads, online, profile } = useApp();
   const [, force] = useState(0);
   useEffect(() => force((n) => n + 1), [route]);
 
@@ -83,20 +85,33 @@ export function TitleBar({ solid, onSearch, route }: { solid: boolean; onSearch:
         <IconButton icon="arrowLeft" label="Back (Alt+Left)" size={18} disabled={!canGoBack()} onClick={goBack} />
         <IconButton icon="arrowRight" label="Forward (Alt+Right)" size={18} disabled={!canGoForward()} onClick={goForward} />
       </div>
+      <Link to="/" className="tb-touch tb-logo" aria-label="PlayzAnime home">
+        <Logo size={28} />
+      </Link>
       <button type="button" className="tb-search" onClick={onSearch}>
         <Icon name="search" size={16} />
-        <span>Search anime and manga</span>
+        <span className="tb-search-label">Search anime and manga</span>
         <span className="tb-keys">
           <kbd>Ctrl</kbd>
           <kbd>K</kbd>
         </span>
       </button>
       <div className="tb-drag" />
+      <Link to="/discover" className={`tb-touch tb-icon ${route.name === 'discover' ? 'is-current' : ''}`} aria-label="Discover">
+        <Icon name="discover" size={20} />
+      </Link>
+      <Link to="/downloads" className={`tb-touch tb-icon ${route.name === 'downloads' ? 'is-current' : ''}`} aria-label="Downloads">
+        <Icon name="downloads" size={20} />
+        {running.length + queued > 0 && <span className="rail-badge num">{running.length + queued}</span>}
+      </Link>
+      <Link to="/profiles" className="tb-touch tb-avatar" aria-label="Profiles">
+        <Avatar profile={profile} size={30} own />
+      </Link>
       {!online && (
-        <Link to="/downloads" className="tb-offline" title="No internet. Your downloads still play.">
+        <span className="tb-offline" role="status" title="No internet. Come back online to keep watching and reading.">
           <Icon name="offline" size={16} />
           Offline
-        </Link>
+        </span>
       )}
       {(running.length > 0 || queued > 0) && (
         <Link to="/downloads" className="tb-activity" title="Open downloads">

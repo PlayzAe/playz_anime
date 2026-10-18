@@ -68,6 +68,29 @@
 .update-points li::marker {
   color: var(--paper-4);
 }
+.update-note {
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--paper-2);
+}
+.update-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-left: 18px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--paper-2);
+}
+.update-steps strong {
+  color: var(--paper);
+  font-weight: 650;
+}
+.update-inline-icon {
+  display: inline-block;
+  vertical-align: -3px;
+  color: var(--accent);
+}
 .update-actions {
   display: flex;
   gap: 8px;

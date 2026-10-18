@@ -157,7 +157,10 @@ export function Watch({ id, ep }: { id: number; ep: number }) {
 
   const listRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    listRef.current?.querySelector('.is-current')?.scrollIntoView({ block: 'center' });
+    // Scroll only the list: scrollIntoView would also scroll the page past the player on phones.
+    const list = listRef.current;
+    const cur = list?.querySelector<HTMLElement>('.is-current');
+    if (list && cur) list.scrollTop += cur.getBoundingClientRect().top - list.getBoundingClientRect().top - (list.clientHeight - cur.offsetHeight) / 2;
   }, [ep, episodes.length, theater]);
 
   if (media.error && !media.data) {

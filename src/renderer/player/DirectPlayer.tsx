@@ -36,6 +36,9 @@ export interface DirectPlayerProps {
 const SPEEDS = [0.5, 0.75, 1, 1.25, 1.5, 2];
 const UP_NEXT_SECONDS = 10;
 
+/** A touch phone, whichever way it is held. */
+const touchPhone = () => matchMedia('(pointer: coarse)').matches && Math.min(screen.width, screen.height) < 600;
+
 function describe(data: ErrorData): string {
   if (data.type === Hls.ErrorTypes.NETWORK_ERROR) {
     const code = data.response?.code;
@@ -69,6 +72,12 @@ export function DirectPlayer(props: DirectPlayerProps) {
   const [subStyle, setSubStyle] = useState<SubtitleStyle>(loadSubtitleStyle);
   const [customizerOpen, setCustomizerOpen] = useState(false);
   const [chrome, setChrome] = useState(true);
+  const chromeRef = useRef(chrome);
+  chromeRef.current = chrome;
+  const [pseudoFs, setPseudoFs] = useState(false);
+  const pseudoFsRef = useRef(pseudoFs);
+  pseudoFsRef.current = pseudoFs;
+  const autoFs = useRef(false);
   const [fullscreen, setFullscreen] = useState(false);
   const [hover, setHover] = useState<{ x: number; t: number } | null>(null);
   const [scrub, setScrub] = useState<number | null>(null);
@@ -240,11 +249,80 @@ export function DirectPlayer(props: DirectPlayerProps) {
   }, [upNext, playing]);
 
   // ── Controls ──
+
+  // Phones: fullscreen also turns the picture sideways. Where the browser won't go
+  // fullscreen (iPhone Safari, or no tap to allow it) the player fills the window instead.
+  const enterFullscreen = useCallback(async () => {
+    const root = rootRef.current;
+    if (root?.requestFullscreen) {
+      try {
+        await root.requestFullscreen({ navigationUI: 'hide' });
+        if (touchPhone()) await (screen.orientation as ScreenOrientation & { lock?: (o: string) => Promise<void> }).lock?.('landscape').catch(() => {});
+        return;
+      } catch {
+        /* not allowed here: fall through to filling the window */
+      }
+    }
+    setPseudoFs(true);
+  }, []);
+
+  const toggleFullscreen = useCallback(() => {
+    if (document.fullscreenElement) void document.exitFullscreen();
+    else if (pseudoFsRef.current) setPseudoFs(false);
+    else void enterFullscreen();
+  }, [enterFullscreen]);
+
   const toggle = useCallback(() => {
     const v = video();
-    if (v.paused || v.ended) void v.play();
-    else v.pause();
-  }, []);
+    if (v.paused || v.ended) {
+      void v.play();
+      // The first play on a phone held upright goes fullscreen and sideways, like the app.
+      if (!autoFs.current && touchPhone() && matchMedia('(orientation: portrait)').matches && !document.fullscreenElement && !pseudoFsRef.current) {
+        autoFs.current = true;
+        void enterFullscreen();
+      }
+    } else v.pause();
+  }, [enterFullscreen]);
+
+  // Turning a phone sideways while it plays goes fullscreen; turning it back leaves the window fill.
+  useEffect(() => {
+    const landscape = matchMedia('(orientation: landscape)');
+    const onTurn = () => {
+      if (!touchPhone() || document.fullscreenElement) return;
+      if (landscape.matches) {
+        if (videoRef.current && !videoRef.current.paused) void enterFullscreen();
+      } else setPseudoFs(false);
+    };
+    landscape.addEventListener('change', onTurn);
+    return () => landscape.removeEventListener('change', onTurn);
+  }, [enterFullscreen]);
+
+  // Touch: a tap shows or hides the controls, a double tap on either side skips 10 seconds,
+  // in the middle it toggles fullscreen. The mouse keeps click to pause.
+  const lastTap = useRef<{ at: number; timer?: number }>({ at: 0 });
+  const touched = useRef(false);
+  const onVideoPointerUp = (e: ReactPointerEvent<HTMLVideoElement>) => {
+    touched.current = e.pointerType === 'touch';
+    if (!touched.current) return;
+    const r = e.currentTarget.getBoundingClientRect();
+    const x = (e.clientX - r.left) / r.width;
+    window.clearTimeout(lastTap.current.timer);
+    if (e.timeStamp - lastTap.current.at < 280) {
+      lastTap.current = { at: 0 };
+      if (x < 0.35) seekBy(-10);
+      else if (x > 0.65) seekBy(10);
+      else toggleFullscreen();
+      return;
+    }
+    lastTap.current = {
+      at: e.timeStamp,
+      timer: window.setTimeout(() => {
+        const v = videoRef.current;
+        if (chromeRef.current && v && !v.paused) setChrome(false);
+        else wake();
+      }, 280),
+    };
+  };
 
   // Holding an arrow key fires a seek every few milliseconds, and a burst of seeks is what
   // leaves the picture frozen while audio carries on. Presses are added up and applied once.
@@ -305,11 +383,6 @@ export function DirectPlayer(props: DirectPlayerProps) {
     propsRef.current.onVolume(clamped);
   }, []);
 
-  const toggleFullscreen = useCallback(() => {
-    if (document.fullscreenElement) void document.exitFullscreen();
-    else void rootRef.current?.requestFullscreen();
-  }, []);
-
   const skipIntro = useCallback(() => {
     if (intro) {
       skipped.current = true;
@@ -332,7 +405,10 @@ export function DirectPlayer(props: DirectPlayerProps) {
     if (el) {
       el.volume = props.volume;
     }
-    const onFs = () => setFullscreen(Boolean(document.fullscreenElement));
+    const onFs = () => {
+      setFullscreen(Boolean(document.fullscreenElement));
+      if (!document.fullscreenElement) (screen.orientation as ScreenOrientation & { unlock?: () => void })?.unlock?.();
+    };
     document.addEventListener('fullscreenchange', onFs);
     return () => document.removeEventListener('fullscreenchange', onFs);
   }, []);
@@ -462,7 +538,7 @@ export function DirectPlayer(props: DirectPlayerProps) {
   return (
     <div
       ref={rootRef}
-      className={`player ${chrome ? '' : 'is-idle'} ${fullscreen ? 'is-fullscreen' : ''}`}
+      className={`player ${chrome ? '' : 'is-idle'} ${fullscreen || pseudoFs ? 'is-fullscreen' : ''} ${pseudoFs ? 'is-pseudo-fs' : ''}`}
       onMouseMove={wake}
       onMouseLeave={() => playing && !rootRef.current?.querySelector('.menu-panel') && setChrome(false)}
     >
@@ -471,8 +547,9 @@ export function DirectPlayer(props: DirectPlayerProps) {
         className="player-video"
         crossOrigin="anonymous"
         playsInline
-        onClick={toggle}
-        onDoubleClick={toggleFullscreen}
+        onPointerUp={onVideoPointerUp}
+        onClick={() => !touched.current && toggle()}
+        onDoubleClick={() => !touched.current && toggleFullscreen()}
         onPlay={() => setPlaying(true)}
         onPause={() => {
           setPlaying(false);
@@ -708,8 +785,8 @@ export function DirectPlayer(props: DirectPlayerProps) {
               <Icon name="pip" size={21} />
             </button>
           )}
-          <button type="button" className="pbtn" aria-label={fullscreen ? 'Exit full screen (F)' : 'Full screen (F)'} title={fullscreen ? 'Exit full screen (F)' : 'Full screen (F)'} onClick={toggleFullscreen}>
-            <Icon name={fullscreen ? 'fullscreenExit' : 'fullscreen'} size={20} />
+          <button type="button" className="pbtn" aria-label={fullscreen || pseudoFs ? 'Exit full screen (F)' : 'Full screen (F)'} title={fullscreen || pseudoFs ? 'Exit full screen (F)' : 'Full screen (F)'} onClick={toggleFullscreen}>
+            <Icon name={fullscreen || pseudoFs ? 'fullscreenExit' : 'fullscreen'} size={20} />
           </button>
         </div>
       </div>

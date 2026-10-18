@@ -1,0 +1,607 @@
+/* Phones, tablets and TVs. Loaded after every component and view sheet so these
+   rules win at equal specificity. <html data-device> comes from lib/device.ts.
+   - desktop, wider than 760px: the original 68px icon rail with tooltips.
+   - phone, tablet or TV wider than 760px: a labelled 84px rail, as in the app.
+   - anything 760px or narrower: a labelled bottom tab bar, as in the app. */
+
+/* clip, not hidden: scrollIntoView can scroll a hidden box and shove the page up. */
+.app,
+.page.watch {
+  overflow: clip;
+}
+
+/* Bleed the hero image past its box: at fractional widths a 1px strip of the
+   tint behind it showed as a coloured line on the right and bottom edges. */
+.hero-img {
+  inset: -2px;
+}
+
+.rail-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.tb-touch {
+  display: none;
+}
+
+/* ── Touch and TV: labelled rail with the app's five tabs ── */
+:root:not([data-device='desktop']) {
+  --rail: 84px;
+}
+:root:not([data-device='desktop']) .rail .rail-item.rail-desk {
+  display: none;
+}
+:root:not([data-device='desktop']) .rail-items,
+:root:not([data-device='desktop']) .rail-foot {
+  gap: 2px;
+}
+:root:not([data-device='desktop']) .rail-item {
+  width: 76px;
+  height: 58px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  background: none;
+}
+:root:not([data-device='desktop']) .rail-item > .icon,
+:root:not([data-device='desktop']) .rail-item > svg {
+  padding: 4px 13px;
+  box-sizing: content-box;
+  border-radius: 16px;
+  transition: background-color var(--fast) var(--ease);
+}
+:root:not([data-device='desktop']) .rail-item.is-current > .icon,
+:root:not([data-device='desktop']) .rail-item.is-current > svg {
+  background: color-mix(in oklab, var(--accent) 22%, transparent);
+}
+:root:not([data-device='desktop']) .rail-item.is-current::before,
+:root:not([data-device='desktop']) .rail-item::after {
+  display: none;
+}
+:root:not([data-device='desktop']) .rail-label {
+  position: static;
+  width: auto;
+  height: auto;
+  clip-path: none;
+  font-size: 11px;
+  font-weight: 520;
+  line-height: 1;
+}
+:root:not([data-device='desktop']) .rail-item.is-current .rail-label {
+  font-weight: 720;
+}
+:root:not([data-device='desktop']) .tb-touch {
+  position: relative;
+  display: grid;
+  place-items: center;
+  flex: none;
+}
+:root:not([data-device='desktop']) .tb-logo {
+  display: none;
+}
+:root:not([data-device='desktop']) .tb-nav,
+:root:not([data-device='desktop']) .tb-keys {
+  display: none;
+}
+.tb-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-2);
+  color: var(--paper-2);
+}
+.tb-icon.is-current {
+  color: var(--accent);
+}
+.tb-icon .rail-badge {
+  top: 3px;
+  right: 2px;
+  background: var(--accent);
+}
+.tb-avatar {
+  width: 38px;
+  height: 38px;
+}
+
+/* TV remotes: a focus ring you can see from the sofa. */
+:root[data-device='tv'] :focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+}
+:root[data-device='tv'] .rail-item:focus-visible > .icon,
+:root[data-device='tv'] .rail-item:focus-visible > svg {
+  background: var(--ink-3);
+}
+
+/* Touch screens: no sticky hover tooltips; the phone's own buttons set the volume. */
+@media (pointer: coarse) {
+  .rail-item::after,
+  .tb-keys,
+  .pvol {
+    display: none;
+  }
+}
+
+/* Player on phones, upright or sideways: tighter bar, nothing wraps, clear of notches. */
+@media (max-width: 760px), (pointer: coarse) and (max-height: 500px) {
+  .player-bar {
+    gap: 0;
+    margin-top: 2px;
+  }
+  .player .pbtn {
+    width: 38px;
+    height: 40px;
+  }
+  .ptime {
+    margin-left: 4px;
+    font-size: 12.5px;
+  }
+  .pbtn[aria-label^='Theater'] {
+    display: none;
+  }
+  .player-bottom {
+    padding: 36px max(6px, env(safe-area-inset-right)) calc(4px + env(safe-area-inset-bottom)) max(6px, env(safe-area-inset-left));
+  }
+  .player-top {
+    padding: calc(12px + env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) 30px max(16px, env(safe-area-inset-left));
+  }
+  .player-episode {
+    font-size: 16px;
+  }
+}
+@media (max-width: 360px) {
+  .pbtn[aria-label^='Next episode'],
+  .pbtn[aria-label^='Picture'] {
+    display: none;
+  }
+}
+
+/* ── Tablets and small laptops ── */
+@media (max-width: 1080px) {
+  :root {
+    --gutter: 28px;
+  }
+  .page.watch {
+    grid-template-columns: minmax(0, 1fr) 300px;
+  }
+  .detail-body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Portrait tablets: the watch side list drops under the player. */
+@media (max-width: 900px) {
+  .page.watch,
+  .page.watch.is-theater {
+    display: flex;
+    flex-direction: column;
+    height: auto;
+    min-height: 100%;
+    overflow: visible;
+    padding-bottom: calc(var(--tabbar, 0px) + 24px);
+  }
+  .watch-main {
+    overflow: visible;
+  }
+  .watch-stage,
+  .is-theater .watch-stage {
+    max-height: calc(100dvh - var(--titlebar));
+  }
+  .aired-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* ── Phones: bottom tab bar and an app-style top bar ── */
+@media (max-width: 760px) {
+  :root,
+  :root:not([data-device='desktop']) {
+    --gutter: 16px;
+    --rail: 0px;
+    --titlebar: calc(56px + env(safe-area-inset-top));
+    --tabbar: calc(62px + env(safe-area-inset-bottom));
+    --window-controls: 12px;
+  }
+
+  .app {
+    display: flex;
+    flex-direction: column;
+    height: 100dvh;
+  }
+  .main {
+    flex: 1;
+    height: auto;
+    min-height: 0;
+    overscroll-behavior-y: contain;
+    scrollbar-width: none;
+  }
+  .main::-webkit-scrollbar {
+    display: none;
+  }
+  .page {
+    padding-bottom: calc(var(--tabbar) + 24px);
+  }
+  .is-immersive .page {
+    padding-bottom: 0;
+  }
+
+  /* Tab bar: Anime, Manga, Schedule, Library, Settings. */
+  .rail-desk,
+  .rail-logo {
+    display: none;
+  }
+  .rail {
+    position: fixed;
+    inset: auto 0 0 0;
+    height: var(--tabbar);
+    flex-direction: row;
+    align-items: stretch;
+    padding: 0 0 env(safe-area-inset-bottom);
+    border-right: 0;
+    border-top: 1px solid var(--line);
+    background: var(--ink-1);
+  }
+  .rail-items,
+  .rail-foot {
+    display: contents;
+  }
+  .rail .rail-item,
+  :root:not([data-device='desktop']) .rail .rail-item {
+    flex: 1 1 0;
+    min-width: 0;
+    width: auto;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    border-radius: 0;
+    background: none;
+    color: var(--paper-3);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .rail .rail-item.is-current {
+    color: var(--paper);
+  }
+  .rail .rail-item > .icon,
+  .rail .rail-item > svg,
+  :root:not([data-device='desktop']) .rail .rail-item > .icon,
+  :root:not([data-device='desktop']) .rail .rail-item > svg {
+    padding: 0;
+    background: none;
+    transition: scale var(--med) var(--ease);
+  }
+  .rail .rail-item.is-current > .icon,
+  .rail .rail-item.is-current > svg {
+    scale: 1.08;
+  }
+  /* The app's accent dash above the current tab. */
+  .rail .rail-item::before,
+  :root:not([data-device='desktop']) .rail .rail-item::before {
+    content: '';
+    display: block;
+    position: static;
+    width: 0;
+    height: 2px;
+    margin-bottom: 3px;
+    border-radius: 1px;
+    background: var(--accent);
+    transition: width var(--med) var(--ease);
+  }
+  .rail .rail-item.is-current::before,
+  :root:not([data-device='desktop']) .rail .rail-item.is-current::before {
+    display: block;
+    width: 18px;
+  }
+  .rail .rail-item::after {
+    display: none;
+  }
+  :root .rail .rail-item.rail-desk,
+  :root:not([data-device='desktop']) .rail .rail-item.rail-desk {
+    display: none;
+  }
+  .rail .rail-label,
+  :root:not([data-device='desktop']) .rail .rail-label {
+    position: static;
+    width: auto;
+    max-width: 100%;
+    height: auto;
+    clip-path: none;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 10.5px;
+    font-weight: 520;
+    line-height: 1.1;
+  }
+  .rail .rail-item.is-current .rail-label {
+    font-weight: 720;
+  }
+
+  /* Top bar: logo, search, Discover, Downloads, profile. */
+  .titlebar {
+    left: 0;
+    gap: 4px;
+    padding: env(safe-area-inset-top) 10px 0 var(--gutter);
+  }
+  .tb-touch,
+  :root:not([data-device='desktop']) .tb-touch {
+    position: relative;
+    display: grid;
+    place-items: center;
+    flex: none;
+  }
+  .tb-logo {
+    margin-right: 6px;
+  }
+  .tb-nav,
+  .tb-keys,
+  .tb-drag,
+  .tb-activity {
+    display: none;
+  }
+  .tb-search {
+    flex: 1;
+    min-width: 0;
+    width: auto;
+    height: 38px;
+    margin-right: 2px;
+    font-size: 13.5px;
+  }
+  .tb-search-label {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .toasts {
+    bottom: calc(var(--tabbar) + 12px);
+    left: 12px;
+    right: 12px;
+    translate: none;
+  }
+  .update-toast {
+    bottom: calc(var(--tabbar) + 12px);
+  }
+
+  /* Hero: the portrait cover fills a portrait box, so it fits instead of cropping. */
+  .hero {
+    height: clamp(400px, 70vh, 600px);
+  }
+  .hero.is-cover {
+    height: clamp(440px, 138vw, 80vh);
+  }
+  .hero-shade {
+    background:
+      linear-gradient(to top, var(--ink-0) 0%, rgb(12 11 10 / 0.86) 30%, rgb(12 11 10 / 0) 64%),
+      linear-gradient(to bottom, rgb(12 11 10 / 0.7) 0, rgb(12 11 10 / 0) 110px);
+  }
+  .hero-body {
+    left: var(--gutter);
+    right: var(--gutter);
+    bottom: 50px;
+    width: auto;
+  }
+  .hero-title {
+    font-size: clamp(30px, 9.5vw, 44px);
+  }
+  .hero-meta {
+    flex-wrap: wrap;
+    row-gap: 2px;
+  }
+  .hero-desc {
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+  }
+  .hero-actions {
+    margin-top: 16px;
+  }
+  .hero-native,
+  .hero-poster {
+    display: none;
+  }
+  .hero-blur {
+    inset: 0;
+  }
+  .hero-blur img {
+    filter: saturate(1.1) brightness(0.8);
+    transform: none;
+  }
+  .hero-pager {
+    left: var(--gutter);
+    right: auto;
+    bottom: 20px;
+  }
+  .hero-progress {
+    width: 100%;
+  }
+
+  /* Shelves: three posters across, the rest a swipe away. */
+  .shelf {
+    margin-top: 32px;
+  }
+  .shelf-track {
+    grid-auto-columns: calc((100vw - 2 * var(--gutter) - 20px) / 3.15);
+    gap: 10px;
+  }
+  .shelf-wide .shelf-track {
+    grid-auto-columns: 78vw;
+  }
+  .shelf-ranked .shelf-track {
+    grid-auto-columns: 44vw;
+  }
+  .shelf-nav {
+    display: none;
+  }
+
+  /* Grids flow to the width. */
+  .poster-grid {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 14px 10px;
+  }
+  .eps-grid,
+  .source-cards-grid,
+  .friends,
+  .aired-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .eps-filter input {
+    width: 100%;
+  }
+  .ranked-card {
+    width: 118px;
+  }
+  .week {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+  }
+  .week > * {
+    flex: 0 0 78%;
+    scroll-snap-align: start;
+  }
+
+  /* Series and manga detail. */
+  .detail-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 18px;
+  }
+  .detail-grid > :first-child {
+    width: min(160px, 46vw);
+  }
+  .facts-row {
+    grid-template-columns: 88px minmax(0, 1fr);
+  }
+  .detail-native {
+    display: none;
+  }
+
+  /* Profile card: picture above the text. */
+  .me {
+    flex-direction: column;
+    gap: 18px;
+    margin-top: 20px;
+    padding: 20px;
+  }
+  .me-actions {
+    flex-wrap: wrap;
+  }
+
+  /* Reader bar: back and titles on one row, tools on a swipeable second row. */
+  .reader-top {
+    height: auto;
+    flex-wrap: wrap;
+    row-gap: 6px;
+    padding: calc(6px + env(safe-area-inset-top)) 8px 8px;
+  }
+  .reader-titles {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+  .reader-series {
+    flex: 0 1 auto;
+    min-width: 0;
+    max-width: 50%;
+  }
+  .reader-chapter {
+    flex: 0 1 auto;
+    min-width: 0;
+    max-width: none;
+  }
+  .reader-drag {
+    display: none;
+  }
+  .reader-tools {
+    flex: 1 1 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding-bottom: 2px;
+  }
+  .reader-tools > * {
+    flex: none;
+  }
+  .reader-zone {
+    top: 96px;
+  }
+
+  /* Watch. */
+  .page.watch {
+    gap: 12px;
+  }
+  .watch-info {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .watch-titles {
+    flex: 1 1 100%;
+  }
+  .side-thumb {
+    width: 96px;
+  }
+
+  /* Downloads page card. */
+  .getapp-copy {
+    justify-self: stretch;
+    min-width: 0;
+  }
+  .getapp-actions .btn {
+    min-width: 0;
+    white-space: normal;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .fr-prepare,
+  .getapp-hero {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .fr-halo {
+    width: 220px;
+    height: 220px;
+  }
+  .fr-paths li {
+    grid-template-columns: 44px minmax(0, 1fr);
+  }
+  .reader-series {
+    max-width: 40vw;
+  }
+
+  img,
+  video {
+    max-width: 100%;
+  }
+}
+
+/* Unfolded foldables and small tablets in portrait: more posters per row. */
+@media (min-width: 540px) and (max-width: 760px) {
+  .shelf-track {
+    grid-auto-columns: calc((100vw - 2 * var(--gutter) - 30px) / 4.3);
+  }
+  .shelf-wide .shelf-track {
+    grid-auto-columns: 46vw;
+  }
+  .shelf-ranked .shelf-track {
+    grid-auto-columns: 30vw;
+  }
+  .aired-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 340px) {
+  .tb-search-label {
+    display: none;
+  }
+  .tb-search {
+    flex: 0 0 38px;
+    justify-content: center;
+    padding: 0;
+    margin-left: auto;
+  }
+}

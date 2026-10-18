@@ -1,22 +1,21 @@
 import { AnimatePresence, motion } from 'motion/react';
-import { useEffect, useState } from 'react';
-import { CHANGELOG_URL, DESKTOP_REPO } from '../lib/links';
+import { useEffect, useState, type ReactNode } from 'react';
+import { device } from '../lib/device';
+import { detectOS, downloadsOf, isStandalone, latestRelease, promptInstall, useCanInstall, type OS, type Release } from '../lib/install';
+import { CHANGELOG_URL } from '../lib/links';
 import { Button } from './Controls';
 import { Icon } from './Icon';
 import './update.css';
 
 /*
- * A new Windows release, announced once. In the Windows app it means "update available";
- * on the web it tells visitors the app has something new. Release notes are written on
- * GitHub, so there's nothing to change here when one comes out.
+ * One card, shown once, that points each visitor at the right app:
+ *   Android  the APK (downloads and offline), or Add to home screen
+ *   iPhone   Share, then Add to Home Screen
+ *   Windows  a new Windows release (downloads and offline)
+ *   others   the browser's own Install prompt, when it has one
+ * In the Windows app it is the "update available" notice instead.
+ * Release notes are written on GitHub, so nothing changes here when one comes out.
  */
-
-interface GithubRelease {
-  tag_name: string;
-  name: string | null;
-  body: string | null;
-  html_url: string;
-}
 
 const DISMISSED_KEY = 'playzanime:dismissed_update';
 
@@ -45,76 +44,205 @@ function highlights(body: string, count = 2): string[] {
   return pick.filter(Boolean).slice(0, count);
 }
 
+type Kind = 'update' | 'android' | 'ios' | 'windows' | 'install';
+
+/** The id remembered on dismiss, so each offer shows once (once per release where there is one). */
+const offerId = (kind: Kind, release: Release | null) => (release ? `${kind}:${release.tag_name}` : kind);
+
+function seen(id: string) {
+  try {
+    const v = localStorage.getItem(DISMISSED_KEY);
+    // Older builds stored the bare tag for the Windows card.
+    return v === id || (id.startsWith('windows:') && v === id.slice('windows:'.length));
+  } catch {
+    return false;
+  }
+}
+
 export function UpdateNotifier({ ready }: { ready: boolean }) {
-  const [update, setUpdate] = useState<GithubRelease | null>(null);
-  const [web, setWeb] = useState(false);
+  const [kind, setKind] = useState<Kind | null>(null);
+  const [release, setRelease] = useState<Release | null>(null);
+  const [os, setOs] = useState<OS>('other');
   const [closed, setClosed] = useState(false);
+  const canInstall = useCanInstall();
 
   useEffect(() => {
-    if (!ready) return;
+    if (!ready || device() === 'tv') return;
     // Give the intro and the first screen a moment before saying anything.
     const timer = setTimeout(async () => {
       try {
         const info = await window.playzanime.app.info();
-        const res = await fetch(`https://api.github.com/repos/${DESKTOP_REPO}/releases/latest`, { headers: { Accept: 'application/vnd.github+json' } });
-        if (!res.ok) return;
-        const latest = (await res.json()) as GithubRelease;
-        if (!latest?.tag_name) return;
-        try {
-          if (localStorage.getItem(DISMISSED_KEY) === latest.tag_name) return;
-        } catch {
-          /* storage unavailable */
+        const latest = await latestRelease();
+        if (info.platform !== 'web') {
+          if (latest?.tag_name && isNewer(latest.tag_name, info.version)) {
+            setRelease(latest);
+            setKind('update');
+          }
+          return;
         }
-        const onWeb = info.platform === 'web';
-        // The web app has no version of its own to compare, so it announces each release once.
-        if (onWeb || isNewer(latest.tag_name, info.version)) {
-          setWeb(onWeb);
-          setUpdate(latest);
-        }
+        const system = detectOS();
+        setOs(system);
+        setRelease(latest);
+        if (system === 'android') setKind('android');
+        else if (system === 'windows') setKind(latest ? 'windows' : null);
+        else if (system === 'ios') setKind(isStandalone() ? null : 'ios');
+        else setKind('install');
       } catch {
-        // Offline or rate-limited: try again next launch.
+        // Offline or rate-limited: try again next visit.
       }
     }, 2500);
     return () => clearTimeout(timer);
   }, [ready]);
 
+  const id = kind ? offerId(kind, kind === 'ios' || kind === 'install' ? null : release) : '';
+  // The plain install card only exists while the browser offers its prompt.
+  const visible = !!kind && !closed && !seen(id) && (kind !== 'install' || (canInstall && !isStandalone()));
+
   const dismiss = () => {
     try {
-      if (update) localStorage.setItem(DISMISSED_KEY, update.tag_name);
+      localStorage.setItem(DISMISSED_KEY, id);
     } catch {
       /* storage unavailable */
     }
     setClosed(true);
   };
 
-  const go = (url: string) => {
+  const open = (url: string) => {
     void window.playzanime.app.openExternal(url);
     dismiss();
   };
 
-  const points = update ? highlights(update.body ?? '') : [];
+  const install = async () => {
+    if (await promptInstall()) dismiss();
+  };
+
+  const links = downloadsOf(release);
+  const points = release && (kind === 'update' || kind === 'windows') ? highlights(release.body ?? '') : [];
+
+  let eyebrow = '';
+  let title: ReactNode = null;
+  let body: ReactNode = null;
+  let actions: ReactNode = null;
+
+  switch (kind) {
+    case 'update':
+      eyebrow = 'Update available';
+      title = (
+        <>
+          PlayzAnime <span className="update-version num">{release?.tag_name}</span> is ready to download
+        </>
+      );
+      actions = (
+        <>
+          <Button variant="primary" size="sm" icon="downloads" onClick={() => open(links.windows)}>
+            Download
+          </Button>
+          <Button variant="quiet" size="sm" onClick={() => open(CHANGELOG_URL)}>
+            What’s new
+          </Button>
+        </>
+      );
+      break;
+    case 'windows':
+      eyebrow = 'New for Windows';
+      title = (
+        <>
+          PlayzAnime <span className="update-version num">{release?.tag_name}</span> is out
+        </>
+      );
+      body = <p className="update-note">Download episodes and chapters to your PC and watch with no internet.</p>;
+      actions = (
+        <>
+          <Button variant="primary" size="sm" icon="downloads" onClick={() => open(links.windows)}>
+            Get the Windows app
+          </Button>
+          <Button variant="quiet" size="sm" onClick={() => open(CHANGELOG_URL)}>
+            What’s new
+          </Button>
+        </>
+      );
+      break;
+    case 'android':
+      eyebrow = 'PlayzAnime for Android';
+      title = (
+        <>
+          Get the Android app{links.apkVersion && <span className="update-version num"> v{links.apkVersion}</span>}
+        </>
+      );
+      body = <p className="update-note">Download episodes and chapters to your phone and watch with no internet. The website itself needs a connection.</p>;
+      actions = (
+        <>
+          <Button variant="primary" size="sm" icon="downloads" onClick={() => open(links.apk)}>
+            Download APK
+          </Button>
+          {canInstall && !isStandalone() ? (
+            <Button variant="quiet" size="sm" onClick={() => void install()}>
+              Add to home screen
+            </Button>
+          ) : (
+            <Button variant="quiet" size="sm" onClick={dismiss}>
+              Not now
+            </Button>
+          )}
+        </>
+      );
+      break;
+    case 'ios':
+      eyebrow = /iPad/.test(navigator.userAgent) ? 'On your iPad' : 'On your iPhone';
+      title = 'Add PlayzAnime to your Home Screen';
+      body = (
+        <ol className="update-steps">
+          <li>
+            Tap <Icon name="share" size={15} className="update-inline-icon" /> <strong>Share</strong> in Safari’s toolbar.
+          </li>
+          <li>
+            Choose <strong>Add to Home Screen</strong>, then <strong>Add</strong>.
+          </li>
+        </ol>
+      );
+      actions = (
+        <Button variant="primary" size="sm" onClick={dismiss}>
+          Got it
+        </Button>
+      );
+      break;
+    case 'install':
+      eyebrow = os === 'mac' ? 'On your Mac' : 'Install PlayzAnime';
+      title = 'Open PlayzAnime like an app';
+      body = <p className="update-note">Its own window and a shortcut on your desktop or dock. It still needs an internet connection.</p>;
+      actions = (
+        <>
+          <Button variant="primary" size="sm" icon="downloads" onClick={() => void install()}>
+            Install
+          </Button>
+          <Button variant="quiet" size="sm" onClick={dismiss}>
+            Not now
+          </Button>
+        </>
+      );
+      break;
+  }
 
   return (
     <AnimatePresence>
-      {update && !closed && (
+      {visible && (
         <motion.aside
           className="update-toast"
           role="status"
-          aria-label={web ? 'New Windows release' : 'Update available'}
+          aria-label={eyebrow}
           initial={{ opacity: 0, y: 24, scale: 0.97 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 16, scale: 0.97 }}
           transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
         >
           <div className="update-head">
-            <span className="update-eyebrow">{web ? 'New for Windows' : 'Update available'}</span>
+            <span className="update-eyebrow">{eyebrow}</span>
             <button type="button" className="update-close" onClick={dismiss} aria-label="Dismiss">
               <Icon name="close" size={15} />
             </button>
           </div>
-          <p className="update-title">
-            PlayzAnime <span className="update-version num">{update.tag_name}</span> {web ? 'is out' : 'is ready to download'}
-          </p>
+          <p className="update-title">{title}</p>
+          {body}
           {points.length > 0 && (
             <ul className="update-points">
               {points.map((p) => (
@@ -122,14 +250,7 @@ export function UpdateNotifier({ ready }: { ready: boolean }) {
               ))}
             </ul>
           )}
-          <div className="update-actions">
-            <Button variant="primary" size="sm" icon="downloads" onClick={() => go(update.html_url)}>
-              {web ? 'Get the Windows app' : 'Download'}
-            </Button>
-            <Button variant="quiet" size="sm" onClick={() => go(CHANGELOG_URL)}>
-              What’s new
-            </Button>
-          </div>
+          <div className="update-actions">{actions}</div>
         </motion.aside>
       )}
     </AnimatePresence>

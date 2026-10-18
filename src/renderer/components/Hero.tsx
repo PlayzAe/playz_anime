@@ -1,5 +1,6 @@
 import { AnimatePresence, motion } from 'motion/react';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useMedia } from '../lib/viewport';
 import { Img } from './Media';
 import './hero.css';
 
@@ -27,6 +28,9 @@ export function Hero({ slides, showNative }: { slides: HeroSlide[]; showNative: 
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
   const pausedRef = useRef(false);
+  const touchX = useRef<number | null>(null);
+  // Portrait phone screens; an unfolded foldable is closer to square and keeps the banner.
+  const phone = useMedia('(max-width: 760px) and (max-aspect-ratio: 4/5)');
   const slide = slides[Math.min(index, slides.length - 1)];
 
   const setHoverPaused = (p: boolean) => {
@@ -60,13 +64,24 @@ export function Hero({ slides, showNative }: { slides: HeroSlide[]; showNative: 
 
   if (!slide) return <div className="hero is-empty" />;
   const posterMode = !slide.banner;
+  // Phones get the portrait cover: it matches the tall hero, where a wide banner would crop to a blur.
+  const phoneCover = phone && !!slide.cover;
+  const swipe = (dx: number) => {
+    if (Math.abs(dx) < 40 || slides.length <= 1) return;
+    setIndex((i) => (i + (dx < 0 ? 1 : slides.length - 1)) % slides.length);
+  };
 
   return (
     <section
-      className={`hero ${posterMode ? 'is-poster' : ''}`}
+      className={`hero ${phoneCover ? 'is-cover' : posterMode ? 'is-poster' : ''}`}
       aria-roledescription="carousel"
       onMouseEnter={() => setHoverPaused(true)}
       onMouseLeave={() => setHoverPaused(false)}
+      onTouchStart={(e) => (touchX.current = e.touches[0].clientX)}
+      onTouchEnd={(e) => {
+        if (touchX.current !== null) swipe(e.changedTouches[0].clientX - touchX.current);
+        touchX.current = null;
+      }}
     >
       <AnimatePresence initial={false}>
         <motion.div
@@ -78,7 +93,9 @@ export function Hero({ slides, showNative }: { slides: HeroSlide[]; showNative: 
           transition={{ duration: 0.75, ease: [0.25, 0.46, 0.45, 0.94] }}
         >
           <div className="hero-bg">
-            {posterMode ? (
+            {phoneCover ? (
+              <Img src={slide.cover} color={slide.color} className="hero-img" eager position="center 20%" />
+            ) : posterMode ? (
               <>
                 <Img src={slide.cover} color={slide.color} className="hero-blur" eager />
                 <Img src={slide.cover} color={slide.color} className="hero-poster" eager />

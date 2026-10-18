@@ -1,0 +1,16 @@
+{
+  "id": "./",
+  "name": "PlayzAnime",
+  "short_name": "PlayzAnime",
+  "description": "Watch anime and read manga, manhwa and manhua.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0c0b0a",
+  "theme_color": "#0c0b0a",
+  "icons": [
+    { "src": "icon.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}

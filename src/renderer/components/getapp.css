@@ -77,6 +77,22 @@
   line-height: 1.6;
   color: var(--paper-2);
 }
+.getapp-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 14px;
+  padding-left: 20px;
+}
+.getapp-steps strong {
+  color: var(--paper);
+  font-weight: 650;
+}
+.getapp-steps svg {
+  display: inline-block;
+  vertical-align: -3px;
+  color: var(--accent);
+}
 .getapp-actions {
   display: flex;
   flex-wrap: wrap;

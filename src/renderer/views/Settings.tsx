@@ -6,6 +6,7 @@ import { Logo } from '../components/Logo';
 import { Modal } from '../components/Modal';
 import { useLoader } from '../lib/data';
 import { CHANGELOG_URL, DOCS_URL, GITHUB_URL, POLICIES_URL, RELEASES_URL } from '../lib/links';
+import { navigate } from '../lib/router';
 import { useApp } from '../lib/store';
 import './settings.css';
 
@@ -189,9 +190,9 @@ export function Settings() {
 
           <Group id="downloads" title="Downloads">
             {web && (
-              <Row title="Downloads are in the Windows app" note="Saving episodes (MP4) and chapters (CBZ) for offline needs a real disk. Here in the browser you stream and read.">
-                <Button variant="primary" size="sm" icon="downloads" onClick={() => open(RELEASES_URL)}>
-                  Get the Windows app
+              <Row title="Downloads are in the Windows and Android apps" note="Saving episodes (MP4) and chapters (CBZ) for offline needs a real disk. Here in the browser you stream and read while online.">
+                <Button variant="primary" size="sm" icon="downloads" onClick={() => navigate('/downloads')}>
+                  Get the app
                 </Button>
               </Row>
             )}
@@ -299,7 +300,7 @@ export function Settings() {
           <Group id="help" title="Help">
             <LinkRow icon="info" title="Guides and FAQ" note="How watching, reading, sources and downloads work." url={DOCS_URL} />
             <LinkRow icon="bolt" title="What’s new" note="Release notes for every version." url={CHANGELOG_URL} />
-            {web && <LinkRow icon="downloads" title="PlayzAnime for Windows" note="Downloads, offline mode and every source, free." url={RELEASES_URL} />}
+            {web && <LinkRow icon="downloads" title="PlayzAnime for Windows and Android" note="Downloads, offline mode and every source, free." url={RELEASES_URL} />}
             <LinkRow icon="shield" title="Terms, privacy and copyright" note="What PlayzAnime is, what it keeps, and how to send a DMCA notice." url={POLICIES_URL} />
             <LinkRow icon="layers" title="Source code" note="The Windows app, the web app and the website, on GitHub." url={GITHUB_URL} />
           </Group>

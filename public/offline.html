@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#0c0b0a" />
+    <title>You're offline · PlayzAnime</title>
+    <link rel="icon" href="icon.svg" type="image/svg+xml" />
+    <style>
+      :root {
+        color-scheme: dark;
+        --ink: #0c0b0a;
+        --ink-1: #151311;
+        --paper: #efe9e1;
+        --paper-3: #8f877e;
+        --accent: #f0532c;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        min-height: 100dvh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px 16px calc(24px + env(safe-area-inset-bottom));
+        background: var(--ink);
+        color: var(--paper);
+        font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+        line-height: 1.5;
+        text-align: center;
+      }
+      main {
+        width: 100%;
+        max-width: 420px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 14px;
+      }
+      img {
+        width: 72px;
+        height: 72px;
+      }
+      h1 {
+        margin: 6px 0 0;
+        font-size: clamp(26px, 7vw, 34px);
+        line-height: 1.1;
+      }
+      p {
+        margin: 0;
+        color: var(--paper-3);
+        font-size: 15px;
+      }
+      button {
+        margin-top: 10px;
+        min-height: 46px;
+        padding: 0 22px;
+        border: 0;
+        border-radius: 10px;
+        background: var(--accent);
+        color: #fff;
+        font: inherit;
+        font-weight: 700;
+        cursor: pointer;
+      }
+      .status {
+        font-size: 13px;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <img src="icon.svg" alt="" />
+      <h1>You're offline</h1>
+      <p>PlayzAnime streams over the internet. Come back online to keep watching and reading.</p>
+      <p>Want episodes and chapters without internet? Download them in the PlayzAnime app for Windows or Android.</p>
+      <button type="button" onclick="location.reload()">Try again</button>
+      <p class="status" id="status">Waiting for a connection…</p>
+    </main>
+    <script>
+      // Reload by itself as soon as the connection is back.
+      addEventListener('online', () => location.reload());
+    </script>
+  </body>
+</html>
