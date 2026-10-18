@@ -3,11 +3,17 @@
 html.m-root {
   -webkit-tap-highlight-color: transparent;
 }
+/* The computer layout locks the body and scrolls an inner panel; the phone layout scrolls the page. */
 html.m-root,
 html.m-root body,
 html.m-root #root {
   height: auto;
   min-height: 100%;
+  overflow: visible;
+}
+html.m-root body {
+  overflow-x: clip;
+  overscroll-behavior-y: none;
 }
 
 .m-app {
