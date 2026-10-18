@@ -903,3 +903,7 @@
 .m-app .page {
   padding-top: 8px;
 }
+.m-chapter-find {
+  height: 42px;
+  margin-bottom: 8px;
+}

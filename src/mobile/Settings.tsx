@@ -9,9 +9,9 @@ export function MSettings() {
   const [rotate, setRotate] = useState(autoRotate);
   return (
     <div className="m-settings">
-      <section className="m-card">
-        <h2 className="m-card-title">View</h2>
-        <p className="m-card-note">You’re using the phone layout. Picked wrong, or on a computer or TV? Switch here; the page reloads.</p>
+      <section className="m-panel">
+        <h2 className="m-panel-title">View</h2>
+        <p className="m-panel-note">You’re using the phone layout. Picked wrong, or on a computer or TV? Switch here; the page reloads.</p>
         <Segmented<ViewMode>
           label="Layout"
           value="mobile"
@@ -22,8 +22,8 @@ export function MSettings() {
           ]}
         />
       </section>
-      <section className="m-card">
-        <div className="m-card-row">
+      <section className="m-panel">
+        <div className="m-panel-row">
           <span>
             <strong>Open episodes sideways</strong>
             <small>Fullscreen and landscape when an episode starts. Turning the phone does the same.</small>
