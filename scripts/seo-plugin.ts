@@ -11,7 +11,7 @@ const OG_IMAGE = 'https://playzae.github.io/playz_anime_landingpage/og.png';
 
 export function seo(base: string): Plugin {
   // PUBLIC_URL is the same setting the server reads (see DEPLOY.md); Render's address is the default.
-  const origin = (process.env.PUBLIC_URL || 'https://playz-anime.onrender.com').replace(/\/+$/, '');
+  const origin = (process.env.PUBLIC_URL || 'https://playz-anime-bo36.onrender.com').replace(/\/+$/, '');
   const site = `${origin}${base}`;
   return {
     name: 'playzanime-seo',

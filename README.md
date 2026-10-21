@@ -1,5 +1,5 @@
 <p align="center">
-<a href="https://playz-anime.onrender.com/">
+<a href="https://playz-anime-bo36.onrender.com/">
 <img src="https://raw.githubusercontent.com/PlayzAe/playz_anime_landingpage/main/public/icon.png" alt="PlayzAnime Logo" width="75px"/>
 </a>
 </p>
@@ -12,7 +12,7 @@
 
 <p align="center">
   <a href="https://playzae.github.io/playz_anime_landingpage/">Website</a> |
-  <a href="https://playz-anime.onrender.com">Watch Online (Web App)</a> |
+  <a href="https://playz-anime-bo36.onrender.com">Watch Online (Web App)</a> |
   <a href="https://playzae.github.io/playz_anime_landingpage/docs">Documentation</a> |
   <a href="https://playzae.github.io/playz_anime_landingpage/docs/policies/dmca">Copyright</a>
 </p>
@@ -21,7 +21,7 @@
   <a href="https://github.com/PlayzAe/playz_anime">
     <img src="https://img.shields.io/github/stars/PlayzAe/playz_anime?style=flat-square&color=crimson" alt="GitHub Stars" />
   </a>
-  <a href="https://playz-anime.onrender.com">
+  <a href="https://playz-anime-bo36.onrender.com">
     <img src="https://img.shields.io/badge/Web%20App-Online-brightgreen?style=flat-square" alt="Status" />
   </a>
   <a href="https://github.com/PlayzAe/playz_anime">
@@ -88,7 +88,7 @@ PlayzAnime is a **streaming platform** and **media client** with a **web app** a
 Launch the live web application directly in your browser:
 
 <p align="center">
-<a href="https://playz-anime.onrender.com" style="font-size:18px;">
+<a href="https://playz-anime-bo36.onrender.com" style="font-size:18px;">
 <b>Open PlayzAnime Web App →</b>
 </a>
 </p>
